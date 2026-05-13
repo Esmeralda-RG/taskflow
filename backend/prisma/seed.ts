@@ -44,7 +44,7 @@ async function main() {
 
   console.log('✅ Usuarios creados');
 
-  // === PROYECTO (usamos findFirst + create para evitar error de unique) ===
+  // === PROYECTO ===
   let project = await prisma.project.findFirst({
     where: { name: 'Proyecto Alpha' }
   });
