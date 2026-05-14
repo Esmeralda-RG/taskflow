@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes.js';
+import testRoutes from './routes/test.routes.js';
 
 dotenv.config();
 
@@ -14,12 +16,15 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Rutas
+app.use('/api/auth', authRoutes);
+app.use('/api/test', testRoutes);
+
 // Ruta de health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     message: 'TaskFlow Backend corriendo correctamente',
-    environment: process.env.NODE_ENV || 'development',
     timestamp: new Date().toISOString()
   });
 });
