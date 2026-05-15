@@ -36,7 +36,9 @@ function App() {
   }
 
   const handleLogout = () => {
-    logout()
+    if (window.confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+      logout()
+    }
   }
 
   if (user) {
@@ -65,16 +67,6 @@ function App() {
 
               <p className="text-sm text-[#5B5CF0] mt-1">
                 Rol: {user.role}
-              </p>
-            </div>
-
-            <div className="bg-gray-100 rounded-2xl p-4 mb-6">
-              <p className="text-xs text-gray-500 mb-2">
-                Token almacenado correctamente
-              </p>
-
-              <p className="text-[11px] text-green-600 font-mono break-all">
-                {localStorage.getItem('token')?.substring(0, 60)}...
               </p>
             </div>
 
