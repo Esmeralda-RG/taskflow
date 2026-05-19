@@ -12,7 +12,13 @@ function UserManagement() {
     role: 'LEADER'
   });
   const [message, setMessage] = useState('');
+  const [tableMessage, setTableMessage] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
+  const [editingUser, setEditingUser] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    role: ''
+  });
 
   const fetchUsers = async () => {
     try {
@@ -63,31 +69,78 @@ function UserManagement() {
     }
   };
 
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    if (!editingUser) return;
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/users/${editingUser.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editFormData)
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setTableMessage(`${data.message}`);
+        setEditingUser(null);
+        setEditFormData({ name: '', role: '' });
+        fetchUsers();
+      } else {
+        setTableMessage(`${data.message}`);
+      }
+    } catch (err) {
+      setTableMessage('Error de conexión');
+    }
+  };
+
+  const handleDelete = async (id, email) => {
+    if (!window.confirm(`¿Eliminar usuario ${email}?`)) return;
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        setTableMessage('Usuario eliminado');
+        fetchUsers();
+      } else {
+        setTableMessage('Error al eliminar usuario');
+      }
+    } catch (err) {
+      setTableMessage('Error de conexión');
+    }
+  };
+
+  const startEdit = (user) => {
+    setEditingUser(user);
+    setEditFormData({ name: user.name || '', role: user.role });
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
 
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Gestión de usuarios
-        </h1>
+      <div className="mb-8 flex items-center justify-between">
 
-        <p className="text-gray-500 mt-1">
-          Administra usuarios y roles del sistema
-        </p>
-      </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Gestión de usuarios
+          </h1>
 
-      {/* Message */}
-      {message && (
-        <div className={`mb-6 rounded-2xl px-5 py-4 text-sm font-medium border
-          ${message.includes('Error')
-            ? 'bg-red-50 border-red-200 text-red-600'
-            : 'bg-green-50 border-green-200 text-green-700'
-          }`}
-        >
-          {message}
+          <p className="text-gray-500 mt-1">
+            Administra usuarios y roles del sistema
+          </p>
         </div>
-      )}
+
+      </div>
 
       {/* Create User */}
       <div className="bg-white rounded-3xl shadow-sm p-8 mb-8">
@@ -186,9 +239,106 @@ function UserManagement() {
           >
             Crear usuario
           </button>
+
         </form>
       </div>
 
+      {message && (
+        <div
+          className={`mb-8 rounded-2xl px-5 py-4 text-sm font-medium border
+          ${message.includes('Error')
+            ? 'bg-red-50 border-red-200 text-red-600'
+            : 'bg-green-50 border-green-200 text-green-700'
+          }`}
+        >
+          {message}
+        </div>
+      )}
+
+      {/* Edit User */}
+      {editingUser && (
+        <div className="bg-white rounded-3xl shadow-sm p-8 mb-8 border border-blue-200">
+
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Editando usuario
+            </h2>
+
+            <p className="text-sm text-gray-500 mt-1">
+              {editingUser.email}
+            </p>
+          </div>
+
+          <form
+            onSubmit={handleUpdate}
+            className="grid grid-cols-1 md:grid-cols-2 gap-5"
+          >
+
+            {/* Name */}
+            <div>
+              <label className="block text-[13px] text-gray-700 mb-2">
+                Nombre
+              </label>
+
+              <input
+                type="text"
+                value={editFormData.name}
+                onChange={(e) =>
+                  setEditFormData({
+                    ...editFormData,
+                    name: e.target.value
+                  })
+                }
+                className="w-full h-11 px-4 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Role */}
+            <div>
+              <label className="block text-[13px] text-gray-700 mb-2">
+                Rol
+              </label>
+
+              <select
+                value={editFormData.role}
+                onChange={(e) =>
+                  setEditFormData({
+                    ...editFormData,
+                    role: e.target.value
+                  })
+                }
+                className="w-full h-11 px-4 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="ADMIN">Administrador</option>
+                <option value="LEADER">Líder</option>
+                <option value="EXECUTOR">Ejecutor</option>
+              </select>
+            </div>
+
+            {/* Buttons */}
+            <div className="md:col-span-2 flex gap-4">
+
+              <button
+                type="submit"
+                className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition"
+              >
+                Guardar cambios
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
+                className="h-11 px-6 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium transition"
+              >
+                Cancelar
+              </button>
+
+            </div>
+
+          </form>
+        </div>
+      )}
+      
       {/* Users Table */}
       <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
 
@@ -225,8 +375,21 @@ function UserManagement() {
               <option value="LEADER">Líderes</option>
               <option value="EXECUTOR">Ejecutores</option>
             </select>
+
           </div>
         </div>
+
+        {tableMessage && (
+          <div
+            className={`mt-6 rounded-2xl px-5 py-4 text-sm font-medium border
+            ${tableMessage.includes('Error')
+              ? 'bg-red-50 border-red-200 text-red-600'
+              : 'bg-blue-50 border-blue-200 text-blue-700'
+            }`}
+          >
+            {tableMessage}
+          </div>
+        )}
 
         {loading ? (
           <div className="p-8 text-center text-gray-500">
@@ -234,10 +397,12 @@ function UserManagement() {
           </div>
         ) : (
           <div className="overflow-x-auto">
+
             <table className="w-full">
 
               <thead className="border-b border-gray-200">
                 <tr className="text-left">
+
                   <th className="px-8 py-4 text-sm font-semibold text-gray-700">
                     Nombre
                   </th>
@@ -253,10 +418,16 @@ function UserManagement() {
                   <th className="px-8 py-4 text-sm font-semibold text-gray-700">
                     Fecha creación
                   </th>
+
+                  <th className="px-8 py-4 text-sm font-semibold text-gray-700 text-center">
+                    Acciones
+                  </th>
+
                 </tr>
               </thead>
 
               <tbody>
+
                 {filteredUsers.map(user => (
                   <tr
                     key={user.id}
@@ -264,7 +435,7 @@ function UserManagement() {
                   >
 
                     <td className="px-8 py-5 text-sm font-medium text-gray-800">
-                      {user.name}
+                      {user.name || '-'}
                     </td>
 
                     <td className="px-8 py-5 text-sm text-gray-500">
@@ -288,11 +459,32 @@ function UserManagement() {
                     <td className="px-8 py-5 text-sm text-gray-400">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
+
+                    <td className="px-8 py-5 text-center">
+
+                      <button
+                        onClick={() => startEdit(user)}
+                        className="px-4 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white mr-2"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(user.id, user.email)}
+                        className="px-4 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-sm text-white"
+                      >
+                        Eliminar
+                      </button>
+
+                    </td>
+
                   </tr>
                 ))}
+
               </tbody>
 
             </table>
+
           </div>
         )}
       </div>
