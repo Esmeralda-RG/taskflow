@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from './contexts/AuthContext.jsx'
 import { Mail, Lock } from 'lucide-react'
+import UserManagement from './components/UserManagement.jsx'
 
 function App() {
   const { user, logout, login } = useAuth();
@@ -8,6 +9,7 @@ function App() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
   
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -41,11 +43,72 @@ function App() {
     }
   }
 
+  if (user && showAdminPanel) {
+    return (
+      <div className="min-h-screen bg-[#efeff2]">
+        
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#5B5CF0]"></div>
+
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">
+                  TaskFlow
+                </h1>
+
+                <p className="text-sm text-gray-500">
+                  Panel de administración
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="hidden md:flex flex-col items-end">
+                <span className="text-sm font-medium text-gray-800">
+                  {user.name}
+                </span>
+
+                <span className="text-xs text-[#5B5CF0]">
+                  {user.role}
+                </span>
+              </div>
+
+              <button
+                onClick={() => setShowAdminPanel(false)}
+                className="px-4 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-sm font-medium transition"
+              >
+                Volver
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="px-4 h-10 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition"
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="max-w-7xl mx-auto p-6">
+          <div className="bg-white rounded-3xl shadow-sm p-6">
+            <UserManagement />
+          </div>
+        </main>
+      </div>
+    )
+  }
+
   if (user) {
     return (
       <div className="min-h-screen bg-[#efeff2] flex items-center justify-center px-4">
         <div className="w-full max-w-sm flex flex-col items-center">
 
+          {/* Logo */}
           <div className="mb-10 flex flex-col items-center">
             <div className="w-12 h-12 rounded-xl bg-[#5B5CF0] mb-2"></div>
 
@@ -54,8 +117,10 @@ function App() {
             </span>
           </div>
 
+          {/* Card */}
           <div className="w-full bg-white rounded-2xl px-8 py-10 shadow-sm">
 
+            {/* User Info */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 ¡Bienvenido!
@@ -70,6 +135,17 @@ function App() {
               </p>
             </div>
 
+            {/* Admin Button */}
+            {user.role === 'ADMIN' && (
+              <button
+                onClick={() => setShowAdminPanel(true)}
+                className="w-full h-11 rounded-xl bg-[#5B5CF0] hover:bg-[#4c4de0] text-white text-sm font-medium transition mb-4"
+              >
+                Gestionar usuarios
+              </button>
+            )}
+
+            {/* Logout */}
             <button
               onClick={handleLogout}
               className="w-full h-11 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition"
