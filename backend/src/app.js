@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
 import testRoutes from './routes/test.routes.js';
 
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/test', testRoutes);
 
 // Ruta de health check
@@ -29,14 +31,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('/api', (req, res) => {
-  res.json({
-    message: '¡Bienvenido a la API de TaskFlow!',
-    version: '1.0.0'
-  });
-});
-
 app.listen(PORT, () => {
   console.log(`Servidor TaskFlow corriendo en http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
 });
