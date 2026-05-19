@@ -70,3 +70,47 @@ export const getUsers = async (req, res) => {
         res.status(500).json({ success: false, message: 'Error al obtener usuarios' });
     }
 };
+
+export const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { role, name } = req.body;
+
+        if (req.user.userId === id && role && role !== 'ADMIN') {
+            return res.status(403).json({
+                success: false,
+                message: 'No puedes cambiar tu propio rol de administrador'
+            });
+        }
+
+        const user = await prisma.user.update({
+            where: { id },
+            data: {
+                role: role?.toUpperCase(),
+                name
+            }
+        });
+
+        res.json({ success: true, message: 'Usuario actualizado exitosamente', user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al actualizar usuario' });
+    }
+};
+
+export const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (req.user.userId === id) {
+            return res.status(403).json({
+                success: false,
+                message: 'No puedes eliminar tu propia cuenta'
+            });
+        }
+
+        await prisma.user.delete({ where: { id } });
+        res.json({ success: true, message: 'Usuario eliminado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error al eliminar usuario' });
+    }
+};
