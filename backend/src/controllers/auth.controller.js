@@ -11,7 +11,7 @@ export const login = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
-                message: "Email and password are required",
+                message: "Email y contraseña son requeridos",
             });
         }
 
@@ -29,7 +29,7 @@ export const login = async (req, res) => {
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: "Invalid email or password",
+                message: "Email o contraseña incorrecta",
             });
         }
 
@@ -38,7 +38,7 @@ export const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
-                message: "Invalid email or password",
+                message: "Email o contraseña incorrecta",
             });
         }
 
@@ -55,7 +55,7 @@ export const login = async (req, res) => {
 
         res.json({
             success: true,
-            message: "Login successful",
+            message: "Login exitoso",
             token,
             user: {
                 id: user.id,
@@ -69,7 +69,7 @@ export const login = async (req, res) => {
         console.error("Login error:", error);
         res.status(500).json({
             success: false,
-            message: "Internal server error",
+            message: "Error interno del servidor",
         });
     }
 }
