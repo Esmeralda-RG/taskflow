@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import projectRoutes from './routes/project.routes.js'; 
 import testRoutes from './routes/test.routes.js';
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.json());
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
 app.use('/api/test', testRoutes);
 
 // Ruta de health check
