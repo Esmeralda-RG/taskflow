@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth } from './contexts/AuthContext.jsx'
 import { Mail, Lock } from 'lucide-react'
 import UserManagement from './components/UserManagement.jsx'
+import ProjectManagement from './components/ProjectManagement.jsx'
 
 function App() {
   const { user, logout, login } = useAuth();
@@ -10,6 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showAdminPanel, setShowAdminPanel] = useState(false)
+  const [showProjects, setShowProjects] = useState(false)
   
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -40,6 +42,9 @@ function App() {
   const handleLogout = () => {
     if (window.confirm('¿Estás seguro de que deseas cerrar sesión?')) {
       logout()
+
+      setShowAdminPanel(false)
+      setShowProjects(false)
     }
   }
 
@@ -103,6 +108,69 @@ function App() {
     )
   }
 
+  if (user && showProjects) {
+    return (
+      <div className="min-h-screen bg-[#efeff2]">
+
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#5B5CF0]"></div>
+
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">
+                  TaskFlow
+                </h1>
+
+                <p className="text-sm text-gray-500">
+                  Gestión de proyectos
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+
+              <div className="hidden md:flex flex-col items-end">
+                <span className="text-sm font-medium text-gray-800">
+                  {user.name}
+                </span>
+
+                <span className="text-xs text-[#5B5CF0]">
+                  {user.role}
+                </span>
+              </div>
+
+              <button
+                onClick={() => setShowProjects(false)}
+                className="px-4 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-sm font-medium transition"
+              >
+                Volver
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="px-4 h-10 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition"
+              >
+                Cerrar sesión
+              </button>
+
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="max-w-7xl mx-auto p-6">
+          <div className="bg-white rounded-3xl shadow-sm p-6">
+            <ProjectManagement />
+          </div>
+        </main>
+
+      </div>
+    )
+  }
+
   if (user) {
     return (
       <div className="min-h-screen bg-[#efeff2] flex items-center justify-center px-4">
@@ -134,6 +202,13 @@ function App() {
                 Rol: {user.role}
               </p>
             </div>
+
+            <button
+              onClick={() => setShowProjects(true)}
+              className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition mb-4"
+            >
+              Gestionar proyectos
+            </button>
 
             {/* Admin Button */}
             {user.role === 'ADMIN' && (
