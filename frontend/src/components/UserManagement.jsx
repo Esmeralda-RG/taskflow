@@ -64,7 +64,7 @@ function UserManagement() {
       } else {
         setMessage(`${data.message}`);
       }
-    } catch (err) {
+    } catch {
       setMessage('Error de conexión');
     }
   };
@@ -94,13 +94,13 @@ function UserManagement() {
       } else {
         setTableMessage(`${data.message}`);
       }
-    } catch (err) {
+    } catch {
       setTableMessage('Error de conexión');
     }
   };
 
   const handleDelete = async (id, email) => {
-    if (!window.confirm(`¿Eliminar usuario ${email}?`)) return;
+    if (!globalThis.confirm(`¿Eliminar usuario ${email}?`)) return;
 
     try {
       const res = await fetch(`http://localhost:3000/api/users/${id}`, {
@@ -114,7 +114,7 @@ function UserManagement() {
       } else {
         setTableMessage('Error al eliminar usuario');
       }
-    } catch (err) {
+    } catch {
       setTableMessage('Error de conexión');
     }
   };
@@ -162,11 +162,15 @@ function UserManagement() {
 
           {/* Email */}
           <div>
-            <label className="block text-[13px] text-gray-700 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-[13px] text-gray-700 mb-2"
+            >
               Correo electrónico
             </label>
 
             <input
+              id="email"
               type="email"
               placeholder="usuario@taskflow.com"
               value={formData.email}
@@ -180,11 +184,14 @@ function UserManagement() {
 
           {/* Name */}
           <div>
-            <label className="block text-[13px] text-gray-700 mb-2">
+            <label
+              htmlFor='name'
+              className="block text-[13px] text-gray-700 mb-2">
               Nombre completo
             </label>
 
             <input
+              id='name'
               type="text"
               placeholder="Juan López"
               value={formData.name}
@@ -192,16 +199,20 @@ function UserManagement() {
                 setFormData({ ...formData, name: e.target.value })
               }
               className="w-full h-11 px-4 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#5B5CF0]"
+              required
             />
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-[13px] text-gray-700 mb-2">
+            <label
+              htmlFor='password'
+              className="block text-[13px] text-gray-700 mb-2">
               Contraseña temporal
             </label>
 
             <input
+              id='password'
               type="password"
               placeholder="••••••••"
               value={formData.password}
@@ -215,11 +226,14 @@ function UserManagement() {
 
           {/* Role */}
           <div>
-            <label className="block text-[13px] text-gray-700 mb-2">
+            <label
+              htmlFor='role'
+              className="block text-[13px] text-gray-700 mb-2">
               Rol
             </label>
 
             <select
+              id='role'
               value={formData.role}
               onChange={(e) =>
                 setFormData({ ...formData, role: e.target.value })
@@ -247,9 +261,9 @@ function UserManagement() {
         <div
           className={`mb-8 rounded-2xl px-5 py-4 text-sm font-medium border
           ${message.includes('Error')
-            ? 'bg-red-50 border-red-200 text-red-600'
-            : 'bg-green-50 border-green-200 text-green-700'
-          }`}
+              ? 'bg-red-50 border-red-200 text-red-600'
+              : 'bg-green-50 border-green-200 text-green-700'
+            }`}
         >
           {message}
         </div>
@@ -276,11 +290,15 @@ function UserManagement() {
 
             {/* Name */}
             <div>
-              <label className="block text-[13px] text-gray-700 mb-2">
+              <label
+                htmlFor='edit-name'
+
+                className="block text-[13px] text-gray-700 mb-2">
                 Nombre
               </label>
 
               <input
+                id='edit-name'
                 type="text"
                 value={editFormData.name}
                 onChange={(e) =>
@@ -295,11 +313,14 @@ function UserManagement() {
 
             {/* Role */}
             <div>
-              <label className="block text-[13px] text-gray-700 mb-2">
+              <label
+                htmlFor='edit-role'
+                className="block text-[13px] text-gray-700 mb-2">
                 Rol
               </label>
 
               <select
+                id='edit-role'
                 value={editFormData.role}
                 onChange={(e) =>
                   setEditFormData({
@@ -338,7 +359,7 @@ function UserManagement() {
           </form>
         </div>
       )}
-      
+
       {/* Users Table */}
       <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
 
@@ -383,9 +404,9 @@ function UserManagement() {
           <div
             className={`mt-6 rounded-2xl px-5 py-4 text-sm font-medium border
             ${tableMessage.includes('Error')
-              ? 'bg-red-50 border-red-200 text-red-600'
-              : 'bg-blue-50 border-blue-200 text-blue-700'
-            }`}
+                ? 'bg-red-50 border-red-200 text-red-600'
+                : 'bg-blue-50 border-blue-200 text-blue-700'
+              }`}
           >
             {tableMessage}
           </div>
@@ -428,58 +449,65 @@ function UserManagement() {
 
               <tbody>
 
-                {filteredUsers.map(user => (
-                  <tr
-                    key={user.id}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition"
-                  >
+                {filteredUsers.map(user => {
 
-                    <td className="px-8 py-5 text-sm font-medium text-gray-800">
-                      {user.name || '-'}
-                    </td>
+                  let roleClass = '';
 
-                    <td className="px-8 py-5 text-sm text-gray-500">
-                      {user.email}
-                    </td>
+                  if (user.role === 'ADMIN') {
+                    roleClass = 'bg-red-100 text-red-600';
+                  } else if (user.role === 'LEADER') {
+                    roleClass = 'bg-yellow-100 text-yellow-700';
+                  } else {
+                    roleClass = 'bg-blue-100 text-blue-600';
+                  }
 
-                    <td className="px-8 py-5">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium
-                        ${user.role === 'ADMIN'
-                            ? 'bg-red-100 text-red-600'
-                            : user.role === 'LEADER'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-blue-100 text-blue-600'
-                          }`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
+                  return (
+                    <tr
+                      key={user.id}
+                      className="border-b border-gray-100 hover:bg-gray-50 transition"
+                    >
 
-                    <td className="px-8 py-5 text-sm text-gray-400">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
+                      <td className="px-8 py-5 text-sm font-medium text-gray-800">
+                        {user.name || '-'}
+                      </td>
 
-                    <td className="px-8 py-5 text-center">
+                      <td className="px-8 py-5 text-sm text-gray-500">
+                        {user.email}
+                      </td>
 
-                      <button
-                        onClick={() => startEdit(user)}
-                        className="px-4 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white mr-2"
-                      >
-                        Editar
-                      </button>
+                      <td className="px-8 py-5">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${roleClass}`}
+                        >
+                          {user.role}
+                        </span>
+                      </td>
 
-                      <button
-                        onClick={() => handleDelete(user.id, user.email)}
-                        className="px-4 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-sm text-white"
-                      >
-                        Eliminar
-                      </button>
+                      <td className="px-8 py-5 text-sm text-gray-400">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </td>
 
-                    </td>
+                      <td className="px-8 py-5 text-center">
 
-                  </tr>
-                ))}
+                        <button
+                          onClick={() => startEdit(user)}
+                          className="px-4 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white mr-2"
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(user.id, user.email)}
+                          className="px-4 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-sm text-white"
+                        >
+                          Eliminar
+                        </button>
+
+                      </td>
+
+                    </tr>
+                  );
+                })}
 
               </tbody>
 
@@ -493,4 +521,3 @@ function UserManagement() {
 }
 
 export default UserManagement;
-

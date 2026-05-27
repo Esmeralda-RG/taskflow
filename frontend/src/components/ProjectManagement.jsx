@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 
 function ProjectManagement() {
-
     const { token } = useAuth();
 
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [message, setMessage] = useState('');
+
+    const [editingProject, setEditingProject] = useState(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -15,14 +18,14 @@ function ProjectManagement() {
         endDate: ''
     });
 
-    const [message, setMessage] = useState('');
-
+    /* =========================
+       FETCH PROJECTS
+    ========================= */
     const fetchProjects = async () => {
         try {
-
             const response = await fetch('http://localhost:3000/api/projects', {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
@@ -33,13 +36,9 @@ function ProjectManagement() {
             }
 
         } catch (error) {
-
             console.error(error);
-
         } finally {
-
             setLoading(false);
-
         }
     };
 
@@ -47,26 +46,25 @@ function ProjectManagement() {
         fetchProjects();
     }, [token]);
 
+    /* =========================
+       CREATE PROJECT
+    ========================= */
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (formData.startDate && formData.endDate) {
-            const start = new Date(formData.startDate);
-            const end = new Date(formData.endDate);
-
-            if (end < start) {
-            setMessage('La fecha límite no puede ser menor a la fecha de inicio');
-            return;
+            if (new Date(formData.endDate) < new Date(formData.startDate)) {
+                setMessage('La fecha límite no puede ser menor a la fecha de inicio');
+                return;
             }
         }
 
         try {
-
             const response = await fetch('http://localhost:3000/api/projects', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(formData)
             });
@@ -74,7 +72,6 @@ function ProjectManagement() {
             const data = await response.json();
 
             if (data.success) {
-
                 setMessage(data.message);
 
                 setFormData({
@@ -85,262 +82,282 @@ function ProjectManagement() {
                 });
 
                 fetchProjects();
-
             } else {
-
                 setMessage(data.message);
-
             }
 
-        } catch (error) {
-
+        } catch {
             setMessage('Error de conexión');
-
         }
     };
 
+    /* =========================
+       EDIT
+    ========================= */
+    const startEdit = (project) => {
+        setEditingProject(project);
+
+        setFormData({
+            name: project.name,
+            description: project.description || '',
+            startDate: project.startDate ? project.startDate.split('T')[0] : '',
+            endDate: project.endDate ? project.endDate.split('T')[0] : ''
+        });
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+
+        try {
+            const res = await fetch(
+                `http://localhost:3000/api/projects/${editingProject.id}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                }
+            );
+
+            const data = await res.json();
+
+            if (data.success) {
+                setMessage(`Proyecto actualizado correctamente`);
+                setEditingProject(null);
+                fetchProjects();
+            } else {
+                setMessage(data.message);
+            }
+
+        } catch {
+            setMessage('Error de conexión');
+        }
+    };
+
+    /* =========================
+       DELETE
+    ========================= */
+    const handleDelete = async (id, name) => {
+        if (!globalThis.confirm(`¿Eliminar "${name}"?`)) return;
+
+        try {
+            const res = await fetch(
+                `http://localhost:3000/api/projects/${id}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (res.ok) {
+                setMessage(`Proyecto eliminado`);
+                fetchProjects();
+            } else {
+                setMessage('Error al eliminar');
+            }
+
+        } catch {
+            setMessage('Error de conexión');
+        }
+    };
+
+    /* =========================
+       UI
+    ========================= */
     return (
         <div className="max-w-7xl mx-auto">
 
-            {/* Header */}
+            {/* HEADER */}
             <div className="mb-8">
-
                 <h1 className="text-3xl font-bold text-gray-900">
                     Gestión de proyectos
                 </h1>
-
                 <p className="text-gray-500 mt-1">
-                    Administra proyectos y fases del sistema
+                    Administra proyectos del sistema
                 </p>
-
             </div>
 
-            {/* Create Project */}
+
+
+            {/* CREATE */}
             <div className="bg-white rounded-3xl shadow-sm p-8 mb-8">
 
-                <div className="mb-8">
-
-                    <h2 className="text-xl font-semibold text-gray-900">
-                        Crear nuevo proyecto
-                    </h2>
-
-                    <p className="text-sm text-gray-500 mt-1">
-                        Agrega proyectos y organiza tareas por fases
-                    </p>
-
-                </div>
+                <h2 className="text-lg font-semibold mb-6">
+                    Crear proyecto
+                </h2>
 
                 <form
                     onSubmit={handleSubmit}
                     className="grid grid-cols-1 md:grid-cols-2 gap-5"
                 >
+                    <input
+                        className="h-11 px-4 rounded-xl bg-gray-100"
+                        placeholder="Nombre"
+                        value={formData.name}
+                        onChange={(e) =>
+                            setFormData({ ...formData, name: e.target.value })
+                        }
+                    />
 
-                    {/* Nombre */}
-                    <div className="md:col-span-2">
+                    <textarea
+                        className="md:col-span-2 px-4 py-3 rounded-xl bg-gray-100"
+                        placeholder="Descripción"
+                        value={formData.description}
+                        onChange={(e) =>
+                            setFormData({ ...formData, description: e.target.value })
+                        }
+                    />
 
-                        <label className="block text-[13px] text-gray-700 mb-2">
-                            Nombre del proyecto
-                        </label>
+                    <input
+                        type="date"
+                        className="h-11 px-4 rounded-xl bg-gray-100"
+                        value={formData.startDate}
+                        onChange={(e) =>
+                            setFormData({ ...formData, startDate: e.target.value })
+                        }
+                    />
 
-                        <input
-                            type="text"
-                            placeholder="Sistema de gestión empresarial"
-                            value={formData.name}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    name: e.target.value
-                                })
-                            }
-                            className="w-full h-11 px-4 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#5B5CF0]"
-                            required
-                        />
+                    <input
+                        type="date"
+                        className="h-11 px-4 rounded-xl bg-gray-100"
+                        value={formData.endDate}
+                        onChange={(e) =>
+                            setFormData({ ...formData, endDate: e.target.value })
+                        }
+                    />
 
-                    </div>
-
-                    {/* Descripción */}
-                    <div className="md:col-span-2">
-
-                        <label className="block text-[13px] text-gray-700 mb-2">
-                            Descripción
-                        </label>
-
-                        <textarea
-                            placeholder="Describe el objetivo del proyecto..."
-                            value={formData.description}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    description: e.target.value
-                                })
-                            }
-                            className="w-full px-4 py-3 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#5B5CF0] min-h-[120px]"
-                        />
-
-                    </div>
-
-                    {/* Fecha Inicio */}
-                    <div>
-
-                        <label className="block text-[13px] text-gray-700 mb-2">
-                            Fecha de inicio
-                        </label>
-
-                        <input
-                            type="date"
-                            value={formData.startDate}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    startDate: e.target.value
-                                })
-                            }
-                            className="w-full h-11 px-4 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#5B5CF0]"
-                        />
-
-                    </div>
-
-                    {/* Fecha Fin */}
-                    <div>
-
-                        <label className="block text-[13px] text-gray-700 mb-2">
-                            Fecha límite
-                        </label>
-
-                        <input
-                            type="date"
-                            value={formData.endDate}
-                            min={formData.startDate}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    endDate: e.target.value
-                                })
-                            }
-                            className="w-full h-11 px-4 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#5B5CF0]"
-                        />
-
-                    </div>
-
-                    {/* Button */}
                     <button
                         type="submit"
-                        className="md:col-span-2 h-11 rounded-xl bg-[#5B5CF0] hover:bg-[#4c4de0] text-white text-sm font-medium transition"
+                        className="md:col-span-2 h-11 rounded-xl bg-[#5B5CF0] text-white"
                     >
                         Crear proyecto
                     </button>
-
                 </form>
             </div>
 
-            {/* Message */}
+            {/* MESSAGE */}
             {message && (
-                <div
-                    className={`mb-8 rounded-2xl px-5 py-4 text-sm font-medium border
-          ${message.includes('Error')
-                            ? 'bg-red-50 border-red-200 text-red-600'
-                            : 'bg-green-50 border-green-200 text-green-700'
-                        }`}
-                >
+                <div className="mb-6 px-4 py-3 rounded-2xl bg-gray-100 text-sm text-gray-700">
                     {message}
                 </div>
             )}
+            {/* EDIT MODAL (INLINE) */}
+            {editingProject && (
+                <div className="bg-white rounded-3xl shadow-sm p-8 mb-8 border border-[#5B5CF0]">
 
-            {/* Projects List */}
-            <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
-
-                <div className="px-8 pt-8 pb-6">
-
-                    <h2 className="text-xl font-semibold text-gray-900">
-                        Proyectos registrados
+                    <h2 className="text-lg font-semibold mb-6 text-gray-900">
+                        Editando: {editingProject.name}
                     </h2>
 
-                    <p className="text-sm text-gray-500 mt-1">
-                        Lista de proyectos disponibles en TaskFlow
-                    </p>
+                    <form
+                        onSubmit={handleUpdate}
+                        className="grid grid-cols-1 md:grid-cols-2 gap-5"
+                    >
+                        <input
+                            className="h-11 px-4 rounded-xl bg-gray-100"
+                            value={formData.name}
+                            onChange={(e) =>
+                                setFormData({ ...formData, name: e.target.value })
+                            }
+                        />
 
-                    <p className="text-xs text-gray-400 mt-1">
-                        {projects.length} proyectos encontrados
-                    </p>
+                        <textarea
+                            className="md:col-span-2 px-4 py-3 rounded-xl bg-gray-100 min-h-[100px]"
+                            value={formData.description}
+                            onChange={(e) =>
+                                setFormData({ ...formData, description: e.target.value })
+                            }
+                        />
 
+                        <input
+                            type="date"
+                            className="h-11 px-4 rounded-xl bg-gray-100"
+                            value={formData.startDate}
+                            onChange={(e) =>
+                                setFormData({ ...formData, startDate: e.target.value })
+                            }
+                        />
+
+                        <input
+                            type="date"
+                            className="h-11 px-4 rounded-xl bg-gray-100"
+                            value={formData.endDate}
+                            onChange={(e) =>
+                                setFormData({ ...formData, endDate: e.target.value })
+                            }
+                        />
+
+                        <button
+                            type="submit"
+                            className="md:col-span-2 h-11 rounded-xl bg-[#5B5CF0] text-white"
+                        >
+                            Guardar cambios
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setEditingProject(null)}
+                            className="md:col-span-2 h-11 rounded-xl bg-gray-200"
+                        >
+                            Cancelar
+                        </button>
+                    </form>
                 </div>
+            )}
+            {/* LIST */}
+            <div className="bg-white rounded-3xl shadow-sm p-8">
+
+                <h2 className="text-lg font-semibold mb-6">
+                    Proyectos ({projects.length})
+                </h2>
 
                 {loading ? (
-                    <div className="p-8 text-center text-gray-500">
-                        Cargando proyectos...
-                    </div>
-                ) : projects.length === 0 ? (
-                    <div className="p-8 text-center text-gray-400">
-                        No hay proyectos registrados
-                    </div>
+                    <p className="text-gray-500">Cargando...</p>
                 ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 pt-0">
-
-                        {projects.map(project => (
-
+                        {projects.map((project) => (
                             <div
                                 key={project.id}
-                                className="border border-gray-200 rounded-3xl p-6 hover:shadow-md transition"
+                                className="border border-gray-200 rounded-3xl p-6"
                             >
+                                <h3 className="font-semibold text-lg">
+                                    {project.name}
+                                </h3>
 
-                                <div className="flex items-start justify-between mb-4">
+                                <p className="text-sm text-gray-500 mt-1">
+                                    {project.description}
+                                </p>
 
-                                    <div>
-
-                                        <h3 className="text-lg font-semibold text-gray-900">
-                                            {project.name}
-                                        </h3>
-
-                                        <p className="text-sm text-gray-500 mt-1">
-                                            {project.description || 'Sin descripción'}
-                                        </p>
-
-                                    </div>
-
+                                <div className="text-xs text-gray-400 mt-3">
+                                    {project.startDate?.split('T')[0]} → {project.endDate?.split('T')[0]}
                                 </div>
 
-                                <div className="space-y-2 text-sm text-gray-500">
+                                <div className="flex gap-3 mt-5">
+                                    <button
+                                        onClick={() => startEdit(project)}
+                                        className="flex-1 h-10 rounded-xl bg-blue-500 text-white text-sm"
+                                    >
+                                        Editar
+                                    </button>
 
-                                    <p>
-                                        <span className="font-medium text-gray-700">
-                                            Inicio:
-                                        </span>{' '}
-                                        {project.startDate
-                                            ? project.startDate.split('T')[0]
-                                            : '—'}
-                                    </p>
-
-                                    <p>
-                                        <span className="font-medium text-gray-700">
-                                            Fecha límite:
-                                        </span>{' '}
-                                        {project.endDate
-                                            ? project.endDate.split('T')[0]
-                                            : '—'}
-                                    </p>
-
+                                    <button
+                                        onClick={() => handleDelete(project.id, project.name)}
+                                        className="flex-1 h-10 rounded-xl bg-red-500 text-white text-sm"
+                                    >
+                                        Eliminar
+                                    </button>
                                 </div>
-
-                                <div className="mt-5 flex items-center gap-3">
-
-                                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-600">
-                                        {project.phases?.length || 0} fases
-                                    </span>
-
-                                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-600">
-                                        {project.members?.length || 0} miembros
-                                    </span>
-
-                                </div>
-
                             </div>
-
                         ))}
 
                     </div>
-
                 )}
+
             </div>
         </div>
     );
