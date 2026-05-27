@@ -94,3 +94,41 @@ export const getProjects = async (req, res) => {
         });
     }
 };
+
+export const updateProject = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, startDate, endDate } = req.body;
+
+        const project = await prisma.project.update({
+            where: { id },
+            data: {
+                name, 
+                description,
+                startDate: startDate ? new Date(startDate) : null,
+                endDate: endDate ? new Date(endDate) : null
+            },
+            include: { phases: true }
+        });
+
+        res.json({
+            success: true,
+            message: `Proyecto "${name}" actualizado exitosamente`,
+            project
+        })
+    } catch {
+        res.status(500).json({ success: false, message: 'Error al actualizar el proyecto' });
+    }
+};
+
+export const deleteProject = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await prisma.project.delete({ where: { id } });
+
+        res.json({ success: true, message: 'Proyecto eliminado exitosamente' });  
+    } catch {
+        res.status(500).json({ success: false, message: 'Error al eliminar proyecto'});
+    }
+};
