@@ -9,3 +9,13 @@ body {
   width: 100%;
   min-height: 100vh;
 }
+
+.kanban-phases-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .kanban-phases-grid {
+    grid-template-columns: repeat(var(--phase-count), minmax(0, 1fr));
+  }
+}

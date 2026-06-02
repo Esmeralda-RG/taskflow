@@ -1,9 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import ConfirmModal from './ui/ConfirmModal.jsx';
+import {
+    FolderKanban,
+    Trash2
+} from 'lucide-react';
 
 const MESSAGE_TYPES = {
     success: 'success',
     error: 'error'
+};
+
+const roleLabels = {
+    ADMIN: 'Administrador',
+    LEADER: 'Líder',
+    EXECUTOR: 'Ejecutor'
 };
 
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -23,11 +34,26 @@ function ProjectMemberManagement() {
     const [users, setUsers] = useState([]);
 
     const [selectedUserId, setSelectedUserId] = useState('');
+    const [roleFilter, setRoleFilter] = useState('ALL');
+    const [memberToRemove, setMemberToRemove] = useState(null);
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState(MESSAGE_TYPES.success);
 
     const [loadingProjects, setLoadingProjects] = useState(true);
     const [loadingMembers, setLoadingMembers] = useState(false);
+    const availableUsers = users.filter(
+        user =>
+            user.role !== 'ADMIN' &&
+            !members.some(
+                member => member.user.id === user.id
+            )
+    );
+    const filteredAvailableUsers =
+        roleFilter === 'ALL'
+            ? availableUsers
+            : availableUsers.filter(
+                user => user.role === roleFilter
+            );
 
     const fetchProjects = useCallback(async () => {
         try {
@@ -85,6 +111,16 @@ function ProjectMemberManagement() {
         void fetchUsers();
     }, [fetchProjects, fetchUsers]);
 
+    useEffect(() => {
+        if (!message) return;
+
+        const timer = setTimeout(() => {
+            setMessage('');
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [message]);
+
     const handleProjectSelect = async (project) => {
         setMessage('');
         setSelectedUserId('');
@@ -128,12 +164,6 @@ function ProjectMemberManagement() {
     const handleRemoveMember = async (userId, userName) => {
         if (!selectedProject) return;
 
-        const confirmRemove = globalThis.confirm(
-            `¿Retirar a ${userName} del proyecto?`
-        );
-
-        if (!confirmRemove) return;
-
         try {
             const res = await fetch(
                 `${API_BASE_URL}/project-members/${selectedProject.id}/${userId}`,
@@ -169,9 +199,17 @@ function ProjectMemberManagement() {
 
         if (projects.length === 0) {
             return (
-                <p className="text-gray-400 text-sm">
-                    No hay proyectos disponibles
-                </p>
+                <div className="py-10 text-center">
+
+                    <p className="text-gray-500 font-medium">
+                        No hay proyectos disponibles
+                    </p>
+
+                    <p className="text-sm text-gray-400 mt-1">
+                        Crea un proyecto para comenzar
+                    </p>
+
+                </div>
             );
         }
 
@@ -193,16 +231,39 @@ function ProjectMemberManagement() {
                                     : 'bg-gray-50 hover:bg-gray-100 border-gray-200'
                                 }`}
                         >
-                            <span className="block font-semibold">
-                                {project.name}
-                            </span>
+                            <div className="flex items-start gap-3">
 
-                            <span className={`block text-sm mt-1 ${isSelected
-                                ? 'text-white/80'
-                                : 'text-gray-500'
-                                }`}>
-                                {project.description || 'Sin descripción'}
-                            </span>
+                                <div
+                                    className={`
+      w-10 h-10 rounded-xl
+      flex items-center justify-center
+      ${isSelected
+                                            ? 'bg-white/20'
+                                            : 'bg-indigo-100 text-indigo-600'
+                                        }
+    `}
+                                >
+                                    <FolderKanban size={18} />
+                                </div>
+
+                                <div>
+
+                                    <p className="font-semibold">
+                                        {project.name}
+                                    </p>
+
+                                    <p
+                                        className={`text-sm mt-1 ${isSelected
+                                            ? 'text-white/80'
+                                            : 'text-gray-500'
+                                            }`}
+                                    >
+                                        {project.description || 'Sin descripción'}
+                                    </p>
+
+                                </div>
+
+                            </div>
                         </button>
                     );
                 })}
@@ -221,40 +282,109 @@ function ProjectMemberManagement() {
 
         if (members.length === 0) {
             return (
-                <p className="text-gray-400 text-sm">
-                    Aún no hay miembros asignados
-                </p>
+                <div className="py-10 text-center">
+
+                    <div className="text-4xl mb-3">
+                        👥
+                    </div>
+
+                    <p className="text-gray-500 font-medium">
+                        No hay miembros asignados
+                    </p>
+
+                    <p className="text-sm text-gray-400 mt-1">
+                        Selecciona un usuario para agregarlo al proyecto
+                    </p>
+
+                </div>
             );
         }
 
         return (
             <div className="space-y-2">
-                {members.map((m) => (
-                    <div
-                        key={m.id}
-                        className="flex justify-between items-center p-3 rounded-xl bg-gray-50 border border-gray-200"
-                    >
-                        <div>
-                            <p className="font-medium text-gray-900">
-                                {m.user.name}
-                            </p>
+                {members.map((m) => {
 
-                            <p className="text-sm text-gray-500">
-                                {m.user.email} • {m.user.role}
-                            </p>
-                        </div>
+                    let roleClass = '';
 
-                        <button
-                            type="button"
-                            onClick={() => {
-                                void handleRemoveMember(m.user.id, m.user.name);
-                            }}
-                            className="text-red-500 hover:text-red-600 text-sm font-medium"
+                    if (m.user.role === 'ADMIN') {
+                        roleClass = 'bg-red-100 text-red-600';
+                    }
+                    else if (m.user.role === 'LEADER') {
+                        roleClass = 'bg-yellow-100 text-yellow-700';
+                    }
+                    else {
+                        roleClass = 'bg-blue-100 text-blue-600';
+                    }
+
+                    return (
+                        <div
+                            key={m.id}
+                            className="
+                flex items-center justify-between
+                p-4
+                rounded-2xl
+                border border-gray-200
+                hover:bg-gray-50
+                transition
+            "
                         >
-                            Retirar
-                        </button>
-                    </div>
-                ))}
+                            <div className="flex items-center gap-3">
+
+                                <div
+                                    className="
+                        w-10 h-10
+                        rounded-full
+                        bg-indigo-100
+                        text-indigo-600
+                        flex items-center justify-center
+                        text-sm font-semibold
+                    "
+                                >
+                                    {m.user.name
+                                        ?.split(' ')
+                                        .map(word => word[0])
+                                        .slice(0, 2)
+                                        .join('')
+                                        .toUpperCase()}
+                                </div>
+
+                                <div>
+                                    <p className="font-medium text-gray-900">
+                                        {m.user.name}
+                                    </p>
+
+                                    <p className="text-sm text-gray-500">
+                                        {m.user.email}
+                                    </p>
+
+                                    <div className="mt-1">
+                                        <span
+                                            className={`
+                                px-2 py-1
+                                rounded-full
+                                text-[11px]
+                                font-medium
+                                ${roleClass}
+                            `}
+                                        >
+                                            {roleLabels[m.user.role]}
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setMemberToRemove(m)}
+                                className="p-2 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600 transition"
+                                title="Retirar"
+                            >
+                                <Trash2 size={18} />
+                            </button>
+                        </div>
+                    );
+                })}
             </div>
         );
     };
@@ -262,14 +392,35 @@ function ProjectMemberManagement() {
     return (
         <div className="max-w-7xl mx-auto">
 
+            {message && (
+                <div
+                    className={`
+      fixed top-5 right-5 z-50
+      px-4 py-3 rounded-xl
+      shadow-lg text-sm font-medium
+      ${messageType === MESSAGE_TYPES.error
+                            ? 'bg-red-500 text-white'
+                            : 'bg-[#5B5CF0] text-white'
+                        }
+    `}
+                >
+                    {message}
+                </div>
+            )}
+
             {/* HEADER */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">
-                    Asignación de miembros
-                </h1>
-                <p className="text-gray-500 mt-1">
-                    Gestiona usuarios dentro de cada proyecto
-                </p>
+            <div className="mb-8 flex items-center justify-between">
+
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        Asignación de miembros
+                    </h1>
+
+                    <p className="text-gray-500 mt-1">
+                        Gestiona usuarios dentro de cada proyecto
+                    </p>
+                </div>
+
             </div>
 
             {/* GRID */}
@@ -281,6 +432,11 @@ function ProjectMemberManagement() {
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">
                         Proyectos
                     </h2>
+                    <div className="mb-4">
+                        <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                            {projects.length} proyectos
+                        </span>
+                    </div>
 
                     {renderProjects()}
                 </div>
@@ -297,53 +453,207 @@ function ProjectMemberManagement() {
                                 </span>
                             </h2>
 
-                            <div className="flex gap-3 mb-6">
+                            <div className="mb-6">
 
-                                <select
-                                    value={selectedUserId}
-                                    aria-label="Seleccionar usuario"
-                                    onChange={(e) => setSelectedUserId(e.target.value)}
-                                    className="flex-1 h-11 px-4 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#5B5CF0]"
+                                <div className="flex flex-wrap gap-2 mb-4">
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setRoleFilter('ALL')}
+                                        className={`
+            px-3 py-2 rounded-full text-sm font-medium
+            ${roleFilter === 'ALL'
+                                                ? 'bg-[#5B5CF0] text-white'
+                                                : 'bg-gray-100 text-gray-500'
+                                            }
+        `}
+                                    >
+                                        Todos
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setRoleFilter('LEADER')}
+                                        className={`
+            px-3 py-2 rounded-full text-sm font-medium
+            ${roleFilter === 'LEADER'
+                                                ? 'bg-yellow-100 text-yellow-700'
+                                                : 'bg-gray-100 text-gray-500'
+                                            }
+        `}
+                                    >
+                                        Líderes
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setRoleFilter('EXECUTOR')}
+                                        className={`
+            px-3 py-2 rounded-full text-sm font-medium
+            ${roleFilter === 'EXECUTOR'
+                                                ? 'bg-blue-100 text-blue-600'
+                                                : 'bg-gray-100 text-gray-500'
+                                            }
+        `}
+                                    >
+                                        Ejecutores
+                                    </button>
+
+                                </div>
+                                <div
+                                    className="
+            grid gap-2
+            max-h-72
+            overflow-y-auto
+            pr-2
+        "
                                 >
-                                    <option value="">
-                                        Seleccionar usuario...
-                                    </option>
 
-                                    {users.map((user) => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.name} ({user.role})
-                                        </option>
-                                    ))}
-                                </select>
+                                    {filteredAvailableUsers.length === 0 ? (
 
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        void handleAddMember();
-                                    }}
-                                    disabled={!selectedUserId}
-                                    className="px-6 h-11 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-medium disabled:opacity-50"
-                                >
-                                    Asignar
-                                </button>
+                                        <div className="text-center py-8">
+
+                                            <p className="text-gray-500 font-medium">
+                                                No hay usuarios disponibles para este filtro
+                                            </p>
+
+                                        </div>
+
+                                    ) : (
+
+                                        filteredAvailableUsers.map(user => {
+
+                                            const selected =
+                                                selectedUserId === user.id;
+
+                                            let roleClass = '';
+
+                                            if (user.role === 'ADMIN') {
+                                                roleClass = 'bg-red-100 text-red-600';
+                                            }
+                                            else if (user.role === 'LEADER') {
+                                                roleClass = 'bg-yellow-100 text-yellow-700';
+                                            }
+                                            else {
+                                                roleClass = 'bg-blue-100 text-blue-600';
+                                            }
+
+                                            return (
+                                                <button
+                                                    key={user.id}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setSelectedUserId(user.id)
+                                                    }
+                                                    className={`
+                            p-3
+                            rounded-xl
+                            border
+                            text-left
+                            transition
+                            ${selected
+                                                            ? 'border-[#5B5CF0] bg-indigo-50'
+                                                            : 'border-gray-200 hover:bg-gray-50'
+                                                        }
+                        `}
+                                                >
+
+                                                    <div className="flex items-center gap-3">
+
+                                                        <div
+                                                            className="
+                                    w-10 h-10
+                                    rounded-full
+                                    bg-indigo-100
+                                    text-indigo-600
+                                    flex items-center justify-center
+                                    font-semibold
+                                    text-sm
+                                "
+                                                        >
+                                                            {user.name
+                                                                ?.split(' ')
+                                                                .map(word => word[0])
+                                                                .slice(0, 2)
+                                                                .join('')
+                                                                .toUpperCase()}
+                                                        </div>
+
+                                                        <div>
+
+                                                            <p className="font-medium text-gray-900">
+                                                                {user.name}
+                                                            </p>
+
+                                                            <p className="text-xs text-gray-500">
+                                                                {user.email}
+                                                            </p>
+
+                                                            <div className="mt-1">
+                                                                <span
+                                                                    className={`
+                                            px-2 py-1
+                                            rounded-full
+                                            text-[11px]
+                                            font-medium
+                                            ${roleClass}
+                                        `}
+                                                                >
+                                                                    {roleLabels[user.role]}
+                                                                </span>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </button>
+                                            );
+                                        })
+
+                                    )}
+
+                                </div>
+
+                                <div className="flex justify-end mt-4">
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            void handleAddMember();
+                                        }}
+                                        disabled={!selectedUserId}
+                                        className="
+                h-11
+                px-6
+                rounded-xl
+                bg-[#5B5CF0]
+                hover:bg-[#4c4de0]
+                text-white
+                text-sm
+                font-medium
+                disabled:opacity-50
+            "
+                                    >
+                                        Asignar
+                                    </button>
+
+                                </div>
+
                             </div>
 
-                            {/* MESSAGE */}
-                            {message && (
-                                <div className={`mb-5 text-sm font-medium px-4 py-3 rounded-2xl
-                                    ${messageType === MESSAGE_TYPES.success
-                                        ? 'bg-green-50 text-green-600 border border-green-200'
-                                        : 'bg-red-50 text-red-600 border border-red-200'
-                                    }`}
-                                >
-                                    {message}
-                                </div>
-                            )}
-
                             {/* MEMBERS */}
-                            <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                                Miembros actuales
-                            </h3>
+                            <div className="flex items-center justify-between mb-3">
+
+                                <h3 className="text-sm font-semibold text-gray-700">
+                                    Miembros actuales
+                                </h3>
+
+                                <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                                    {members.length} miembros
+                                </span>
+
+                            </div>
 
                             {renderMembers()}
                         </>
@@ -354,6 +664,27 @@ function ProjectMemberManagement() {
                     )}
                 </div>
             </div>
+            <ConfirmModal
+                isOpen={!!memberToRemove}
+                title="Retirar miembro"
+                message={
+                    memberToRemove
+                        ? `¿Deseas retirar a ${memberToRemove.user.name} del proyecto?`
+                        : ''
+                }
+                confirmText="Retirar"
+                cancelText="Cancelar"
+                danger
+                onConfirm={() => {
+                    void handleRemoveMember(
+                        memberToRemove.user.id,
+                        memberToRemove.user.name
+                    );
+
+                    setMemberToRemove(null);
+                }}
+                onCancel={() => setMemberToRemove(null)}
+            />
         </div>
     );
 }
