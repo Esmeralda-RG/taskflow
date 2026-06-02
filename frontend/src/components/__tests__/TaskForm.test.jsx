@@ -248,10 +248,7 @@ describe('TaskForm - Modo edición', () => {
     });
 
     it('registra comentario enviando el formulario de actividad', async () => {
-        fetch
-            .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ success: true, members: mockMembers }) })
-            .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ success: true, comments: [] }) })
-            .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ success: true, comment: { id: 'c1', content: 'OK', interaction: 'APROBADO', user: { id: 'u1', name: 'Admin' }, attachments: [] } }) });
+        fetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ success: true, comment: { id: 'c1', content: 'OK', interaction: 'APROBADO', user: { id: 'u1', name: 'Admin' }, attachments: [], createdAt: '2026-06-01T10:00:00Z' } }) });
 
         render(<TaskForm {...defaultProps} taskToEdit={mockTaskToEdit} />);
 

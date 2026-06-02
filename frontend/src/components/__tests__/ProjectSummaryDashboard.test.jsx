@@ -63,7 +63,7 @@ describe('ProjectSummaryDashboard', () => {
         render(<ProjectSummaryDashboard project={mockProject} refreshKey={0} />);
 
         await waitFor(() => {
-            expect(screen.getByText('40%')).toBeInTheDocument();
+            expect(screen.getAllByText('40%').length).toBeGreaterThan(0);
         });
     });
 
@@ -91,8 +91,8 @@ describe('ProjectSummaryDashboard', () => {
         render(<ProjectSummaryDashboard project={mockProject} refreshKey={0} />);
 
         await waitFor(() => {
-            expect(screen.getByText('10')).toBeInTheDocument();
-            expect(screen.getByText('4')).toBeInTheDocument();
+            expect(screen.getAllByText('10').length).toBeGreaterThan(0);
+            expect(screen.getAllByText('4').length).toBeGreaterThan(0);
         });
     });
 

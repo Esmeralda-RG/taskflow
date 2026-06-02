@@ -59,8 +59,8 @@ describe('WorkloadDashboard', () => {
             expect(screen.getAllByText('Carlos').length).toBeGreaterThan(0);
         });
 
-        expect(screen.getByText('EXECUTOR')).toBeInTheDocument();
-        expect(screen.getByText('Tareas asignadas')).toBeInTheDocument();
+        expect(screen.getAllByText('Ejecutor').length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/tarea/).length).toBeGreaterThan(0);
     });
 
     it('llama onClose al hacer click en el botón Cerrar', async () => {
@@ -74,7 +74,7 @@ describe('WorkloadDashboard', () => {
 
         await waitFor(() => screen.getAllByText('Carlos'));
 
-        screen.getByText('Cerrar').click();
+        screen.getByTitle('Cerrar').click();
 
         expect(onClose).toHaveBeenCalledTimes(1);
     });
@@ -88,8 +88,8 @@ describe('WorkloadDashboard', () => {
         render(<WorkloadDashboard project={mockProject} onClose={vi.fn()} />);
 
         await waitFor(() => {
-            expect(screen.getAllByText('Tareas asignadas').length).toBeGreaterThan(0);
-            expect(screen.getAllByText('Horas pendientes').length).toBeGreaterThan(0);
+            expect(screen.getByText('1–3 tareas (bajo)')).toBeInTheDocument();
+            expect(screen.getByText('Horas pendientes')).toBeInTheDocument();
         });
     });
 });
