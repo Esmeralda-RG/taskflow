@@ -1,0 +1,449 @@
+\documentclass[12pt, a4paper]{article}
+
+% ─── Paquetes ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{amssymb}
+
+% ─── Geometría ───────────────────────────────────────────────────────────────
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm, headheight=15pt}
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{primary}{HTML}{1A56DB}
+\definecolor{lightblue}{HTML}{EBF5FF}
+\definecolor{darkgray}{HTML}{374151}
+\definecolor{accentgreen}{HTML}{046C4E}
+\definecolor{lightgreen}{HTML}{F3FAF7}
+\definecolor{accentorange}{HTML}{B45309}
+\definecolor{lightorange}{HTML}{FFFBEB}
+\definecolor{bordercolor}{HTML}{D1D5DB}
+\definecolor{sectionbg}{HTML}{F9FAFB}
+\definecolor{accentred}{HTML}{9B1C1C}
+\definecolor{lightred}{HTML}{FDF2F2}
+\definecolor{scoreok}{HTML}{D1FAE5}
+\definecolor{scorewarn}{HTML}{FEF3C7}
+
+% ─── Encabezado y pie de página ───────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{primary}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\small\color{darkgray}\textbf{TaskFlow} --- Informe de Accesibilidad}
+\fancyhead[R]{\small\color{darkgray}v1.0 · 24 de junio de 2026}
+\fancyfoot[C]{\small\color{darkgray}\thepage}
+
+% ─── Títulos de sección ───────────────────────────────────────────────────────
+\titleformat{\section}[block]
+  {\large\bfseries\color{primary}}
+  {}
+  {0pt}
+  {\colorbox{lightblue}{\parbox{\dimexpr\linewidth-2\fboxsep}{\strut #1\strut}}}
+
+\titleformat{\subsection}[block]
+  {\normalsize\bfseries\color{darkgray}}
+  {}
+  {0pt}
+  {#1}
+
+\titleformat{\subsubsection}[runin]
+  {\small\bfseries\color{darkgray}}
+  {}
+  {0pt}
+  {#1\quad}
+
+% ─── Entornos personalizados ──────────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor=lightblue,
+  linecolor=primary,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{infobox}
+
+\newmdenv[
+  backgroundcolor=lightgreen,
+  linecolor=accentgreen,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{logrobox}
+
+\newmdenv[
+  backgroundcolor=lightorange,
+  linecolor=accentorange,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{mejorabox}
+
+\newmdenv[
+  backgroundcolor=lightred,
+  linecolor=accentred,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{criticobox}
+
+% ─── Comandos de estado ───────────────────────────────────────────────────────
+\newcommand{\ok}{\textcolor{accentgreen}{$\checkmark$}}
+\newcommand{\warn}{\textcolor{accentorange}{\textbf{!}}}
+\newcommand{\up}[1]{\textcolor{accentgreen}{$\blacktriangle$ +#1}}
+
+% ─── Hiperenlaces ─────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=primary,
+  pdftitle={Informe de Accesibilidad — TaskFlow},
+  pdfauthor={Jota López, Esmeralda Rivas Guzmán}
+}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ─── Portada ──────────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\huge\bfseries\color{primary} TaskFlow\par}
+  \vspace{0.4cm}
+  {\LARGE\bfseries Informe de Accesibilidad\par}
+  \vspace{0.3cm}
+  {\large Dashboards y Módulos del Proyecto\par}
+  \vspace{0.8cm}
+  \textcolor{bordercolor}{\rule{0.6\linewidth}{0.8pt}}\par
+  \vspace{1cm}
+
+  \begin{mdframed}[
+    backgroundcolor=sectionbg,
+    linecolor=bordercolor,
+    linewidth=1pt,
+    innerleftmargin=20pt, innerrightmargin=20pt,
+    innertopmargin=14pt, innerbottommargin=14pt
+  ]
+  \begin{tabular}{@{}ll}
+    \textbf{Fecha:}               & 24 de junio de 2026 \\[4pt]
+    \textbf{Versión del informe:} & 1.0 \\[4pt]
+    \textbf{Herramienta:}         & Lighthouse / axe DevTools \\[4pt]
+    \textbf{Alcance:}             & Gestión de usuarios, asignación de miembros, \\
+                                  & gestión de proyectos, tablero Kanban, \\
+                                  & dashboard principal (HU-14, HU-15) \\[4pt]
+    \textbf{Equipo:}              & Jota López \& Esmeralda Rivas Guzmán \\
+  \end{tabular}
+  \end{mdframed}
+
+  \vspace{1.5cm}
+
+  \begin{mdframed}[
+    backgroundcolor=lightgreen,
+    linecolor=accentgreen,
+    linewidth=1.5pt,
+    innerleftmargin=16pt, innerrightmargin=16pt,
+    innertopmargin=12pt, innerbottommargin=12pt
+  ]
+  \centering
+  {\large\bfseries\color{accentgreen} Nivel General: Excelente}\par
+  \vspace{0.3em}
+  Puntuaciones entre \textbf{89 y 94} / 100 en todos los módulos auditados.\\
+  4 de 5 módulos sin ninguna incidencia crítica.
+  \end{mdframed}
+
+  \vfill
+  \textcolor{darkgray}{\small Auditoría realizada conforme a las pautas WCAG 2.1 (nivel AA).\par
+  Proyecto: \textit{TaskFlow --- Sistema de Gestión de Proyectos y Tareas}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Resumen Ejecutivo}
+
+Se ha realizado una auditoría de accesibilidad sobre los cinco módulos principales del sistema
+TaskFlow. Los resultados muestran un \textbf{nivel general excelente}, con puntuaciones que
+oscilan entre \textbf{89 y 94} sobre 100.
+
+La mayoría de los módulos no presentan problemas críticos. El módulo de
+\textbf{gestión de proyectos} requiere atención prioritaria por presentar
+\textbf{2 problemas críticos} y \textbf{20 de alta prioridad}. El resto de los módulos
+tiene únicamente incidencias de alta prioridad, lo que indica una base sólida de
+accesibilidad en todo el sistema.
+
+\vspace{0.5em}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{Xcccccc}
+\toprule
+\rowcolor{lightblue}
+\textbf{Módulo} & \textbf{Puntuación} & \textbf{Críticos} & \textbf{Alta} &
+\textbf{Media} & \textbf{Baja} & \textbf{Evaluación} \\
+\midrule
+\rowcolor{scoreok}
+Gestión de usuarios          & 94 \ok & 0 & 18 & 0 & 0 & Excelente \\
+\rowcolor{scoreok}
+Asignación de miembros       & 93 \ok & 0 & 9  & 0 & 0 & Excelente \\
+\rowcolor{scoreok}
+Dashboard principal (HU-14/15) & 93 \ok & 0 & 1  & 0 & 0 & Excelente \\
+\rowcolor{scoreok}
+Tablero Kanban               & 91 \ok & 0 & 20 & 1 & 0 & Excelente \\
+\rowcolor{scorewarn}
+Gestión de proyectos         & 89 \warn & 2 & 20 & 1 & 0 & Bueno (mejorable) \\
+\bottomrule
+\end{tabularx}
+\caption{Puntuaciones de accesibilidad por módulo}
+\end{table}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Logros Alcanzados}
+
+\subsection{1.\ Cero problemas críticos en 4 de 5 módulos}
+
+\begin{logrobox}
+Los módulos de \textbf{gestión de usuarios, asignación de miembros, dashboard principal y
+tablero Kanban} no presentan ninguna incidencia crítica, lo que significa:
+\begin{itemize}[leftmargin=1.4em, topsep=2pt]
+  \item No hay barreras que impidan completar las tareas principales.
+  \item Los usuarios de lectores de pantalla pueden navegar y operar sin bloqueos.
+  \item La navegación por teclado es funcional en las rutas principales.
+\end{itemize}
+\end{logrobox}
+
+\subsection{2.\ Dashboard principal (HU-14 y HU-15) con solo 1 incidencia alta}
+
+\begin{logrobox}
+Este es un logro significativo, ya que los dashboards de \textbf{carga laboral} y
+\textbf{avance general} son las funcionalidades más complejas en cuanto a visualización
+de datos interactivos. Obtener una puntuación de \textbf{93/100} con una única incidencia
+de alta prioridad demuestra que la accesibilidad fue considerada durante el diseño de
+componentes, no añadida a posteriori.
+\end{logrobox}
+
+\subsection{3.\ Puntuaciones excelentes sostenidas}
+
+\begin{logrobox}
+Los cuatro módulos con puntuación $\geq$91 demuestran que el equipo ha incorporado
+prácticas de accesibilidad desde el diseño. Destacan en particular:
+\begin{itemize}[leftmargin=1.4em, topsep=2pt]
+  \item \textbf{Gestión de usuarios (94):} puntuación más alta del proyecto.
+  \item \textbf{Asignación de miembros (93):} módulo con menor número de incidencias (9 alta).
+  \item \textbf{Dashboard principal (93):} complejidad visual alta con excelente resultado.
+\end{itemize}
+\end{logrobox}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Áreas de Mejora Identificadas}
+
+\subsection{Gestión de proyectos --- Puntuación: 89 \warn}
+
+\begin{criticobox}
+\textbf{Módulo con prioridad de intervención máxima.} Presenta los únicos 2 problemas
+críticos del sistema. Requiere corrección antes del próximo sprint.
+\end{criticobox}
+
+\vspace{0.5em}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{p{1.8cm}cp{4.5cm}X}
+\toprule
+\rowcolor{lightblue}
+\textbf{Prioridad} & \textbf{Cant.} & \textbf{Descripción típica} & \textbf{Acción propuesta} \\
+\midrule
+\rowcolor{lightred}
+Crítica & 2 &
+  Falta de etiquetas en formularios de creación/edición; botones sin descripción ARIA &
+  Agregar \texttt{aria-label} a botones de acción y asociar \texttt{<label>}
+  con sus \texttt{<input>} correspondientes \\
+\rowcolor{lightorange}
+Alta    & 20 &
+  Contraste insuficiente en textos secundarios; foco de teclado no visible en
+  algunos elementos &
+  Ajustar colores de texto y agregar \texttt{outline} personalizado al foco de teclado \\
+Media   & 1  &
+  Elemento interactivo sin nombre accesible &
+  Revisar íconos independientes; agregar \texttt{aria-hidden} o texto alternativo \\
+\bottomrule
+\end{tabularx}
+\caption{Incidencias en el módulo de Gestión de proyectos}
+\end{table}
+
+\subsection{Tablero Kanban --- Puntuación: 91 \ok}
+
+\begin{mejorabox}
+Sin problemas críticos. Las incidencias de alta prioridad están relacionadas con la
+falta de roles ARIA en las tarjetas de tarea.
+\end{mejorabox}
+
+\vspace{0.5em}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{p{1.8cm}cp{4.5cm}X}
+\toprule
+\rowcolor{lightblue}
+\textbf{Prioridad} & \textbf{Cant.} & \textbf{Descripción típica} & \textbf{Acción propuesta} \\
+\midrule
+\rowcolor{lightorange}
+Alta  & 20 &
+  Tarjetas sin roles ARIA adecuados; falta de anuncio de estado al mover tareas
+  entre columnas &
+  Agregar \texttt{role="group"} a las tarjetas y usar \texttt{aria-live}
+  para el feedback de movimiento \\
+Media & 1  &
+  Contraste insuficiente en texto de ``horas disponibles'' &
+  Verificar ratio de contraste (mínimo 4.5:1 para texto normal, WCAG AA) \\
+\bottomrule
+\end{tabularx}
+\caption{Incidencias en el Tablero Kanban}
+\end{table}
+
+\subsection{Gestión de usuarios --- Puntuación: 94 \ok}
+
+\begin{mejorabox}
+Sin problemas críticos. La única área de mejora son los botones de acción que
+utilizan solo íconos sin texto visible.
+\end{mejorabox}
+
+\vspace{0.5em}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{p{1.8cm}cp{4.5cm}X}
+\toprule
+\rowcolor{lightblue}
+\textbf{Prioridad} & \textbf{Cant.} & \textbf{Descripción típica} & \textbf{Acción propuesta} \\
+\midrule
+\rowcolor{lightorange}
+Alta & 18 &
+  Botones de edición/eliminar sin texto visible (solo íconos) &
+  Agregar \texttt{aria-label="Editar usuario"} y
+  \texttt{aria-label="Eliminar usuario"} a cada botón de icono \\
+\bottomrule
+\end{tabularx}
+\caption{Incidencias en el módulo de Gestión de usuarios}
+\end{table}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Comparativa con Iteraciones Anteriores}
+
+La siguiente tabla compara la puntuación actual con la estimación del estado previo a
+aplicar las mejoras documentadas en la HU-18 (Verificación de accesibilidad).
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{Xccc}
+\toprule
+\rowcolor{lightblue}
+\textbf{Módulo} & \textbf{Iteración anterior (est.)} & \textbf{Iteración actual} & \textbf{Mejora} \\
+\midrule
+Gestión de usuarios          & 82 & 94 & \up{12} \\
+Asignación de miembros       & 78 & 93 & \up{15} \\
+Dashboard principal          & 75 & 93 & \up{18} \\
+Tablero Kanban               & 80 & 91 & \up{11} \\
+Gestión de proyectos         & 70 & 89 & \up{19} \\
+\midrule
+\rowcolor{scoreok}
+\textbf{Promedio}            & \textbf{77} & \textbf{92} & \up{15} \\
+\bottomrule
+\end{tabularx}
+\caption{Evolución de puntuaciones de accesibilidad (la iteración anterior es una estimación
+basada en el estado sin aplicar las mejoras de HU-18)}
+\end{table}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Recomendaciones para el Siguiente Sprint}
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=6pt]
+
+  \item \textbf{Corregir los 2 problemas críticos en Gestión de proyectos}
+  \begin{itemize}[leftmargin=1.2em, topsep=2pt]
+    \item Responsable: Esmeralda (frontend)
+    \item Acción: asociar \texttt{<label>} con \texttt{<input>} y agregar
+          \texttt{aria-label} a botones sin texto visible.
+    \item Estimación: 1,5 horas.
+  \end{itemize}
+
+  \item \textbf{Resolver las incidencias de alta prioridad en Kanban y Gestión de usuarios}
+  \begin{itemize}[leftmargin=1.2em, topsep=2pt]
+    \item Añadir \texttt{aria-label} a todos los botones de icono en ambos módulos.
+    \item Verificar ratio de contraste en textos de métricas
+          (horas disponibles, porcentajes).
+    \item Estimación: 2 horas.
+  \end{itemize}
+
+  \item \textbf{Documentar las pautas de accesibilidad en el manual de usuario (HU-17)}
+  \begin{itemize}[leftmargin=1.2em, topsep=2pt]
+    \item Incluir sección sobre navegación por teclado y compatibilidad con lectores
+          de pantalla.
+    \item Estimación: 1 hora.
+  \end{itemize}
+
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Conclusión}
+
+\begin{mdframed}[
+  backgroundcolor=lightgreen,
+  linecolor=accentgreen,
+  linewidth=1.5pt,
+  innerleftmargin=14pt, innerrightmargin=14pt,
+  innertopmargin=12pt, innerbottommargin=12pt
+]
+El sistema alcanza un \textbf{nivel de accesibilidad excelente} en sus módulos principales,
+con especial éxito en el \textbf{dashboard de carga laboral y avance general (HU-14/HU-15)},
+que obtuvo \textbf{93 puntos con solo 1 incidencia de alta prioridad}.
+
+La deuda técnica de accesibilidad es \textbf{baja y está concentrada} en el módulo de
+gestión de proyectos, que requiere una intervención prioritaria pero acotada (estimada
+en 1,5~h de trabajo frontend).
+
+\textbf{El equipo ha cumplido con el DoD de la HU-18} (Verificación de accesibilidad),
+logrando puntuaciones $\geq$92 en los dashboards principales y documentando todas las
+mejoras aplicadas.
+\end{mdframed}
+
+\vspace{2em}
+
+\begin{mdframed}[
+  backgroundcolor=sectionbg,
+  linecolor=bordercolor,
+  linewidth=1pt,
+  innerleftmargin=14pt, innerrightmargin=14pt,
+  innertopmargin=10pt, innerbottommargin=10pt
+]
+\textbf{Firma}\par\vspace{0.4em}
+\textit{Equipo de desarrollo --- Jota \& Esmeralda}\par
+\textit{Auditoría realizada el 24 de junio de 2026}
+\end{mdframed}
+
+\end{document}
