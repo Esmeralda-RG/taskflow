@@ -4,7 +4,8 @@ const prisma = new PrismaClient();
 
 export const addMemberToProject = async (req, res) => {
     try {
-        const { projectId, userId } = req.body;
+        const projectId = req.params.projectId || req.body.projectId;
+        const { userId } = req.body;
 
         if (!projectId || !userId) {
             return res.status(400).json({ success: false, error: "Project ID y User ID son requeridos." });
@@ -75,11 +76,25 @@ export const removeMemberFromProject = async (req, res) => {
   try {
     const { projectId, userId } = req.params;
 
-    await prisma.projectMember.delete({
-      where: { projectId_userId: { projectId, userId } }
-    });
+    await prisma.$transaction([
+      prisma.task.updateMany({
+        where: {
+          projectId,
+          assigneeId: userId
+        },
+        data: {
+          assigneeId: null
+        }
+      }),
+      prisma.projectMember.delete({
+        where: { projectId_userId: { projectId, userId } }
+      })
+    ]);
 
-    res.json({ success: true, message: 'Usuario removido del proyecto correctamente' });
+    res.json({
+      success: true,
+      message: 'Usuario removido del proyecto correctamente. Sus tareas quedaron sin responsable.'
+    });
   } catch {
     res.status(500).json({ success: false, message: 'Error al remover miembro del proyecto' });
   }
