@@ -7,3 +7,8 @@ backend/uploads
 
 backend/coverage
 frontend/coverage
+
+*.aux
+*.log
+*.out
+*.toc
