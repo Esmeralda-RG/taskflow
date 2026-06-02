@@ -1,0 +1,552 @@
+\documentclass[12pt, a4paper]{article}
+
+% ─── Paquetes ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{amssymb}
+
+% ─── Geometría ───────────────────────────────────────────────────────────────
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm, headheight=15pt}
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{primary}{HTML}{1A56DB}
+\definecolor{lightblue}{HTML}{EBF5FF}
+\definecolor{darkgray}{HTML}{374151}
+\definecolor{accentgreen}{HTML}{046C4E}
+\definecolor{lightgreen}{HTML}{F3FAF7}
+\definecolor{accentorange}{HTML}{B45309}
+\definecolor{lightorange}{HTML}{FFFBEB}
+\definecolor{bordercolor}{HTML}{D1D5DB}
+\definecolor{sectionbg}{HTML}{F9FAFB}
+\definecolor{accentred}{HTML}{9B1C1C}
+\definecolor{lightred}{HTML}{FDF2F2}
+\definecolor{coverok}{HTML}{D1FAE5}
+\definecolor{coverwarn}{HTML}{FEF3C7}
+
+% ─── Encabezado y pie de página ───────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{primary}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\small\color{darkgray}\textbf{TaskFlow} --- Informe de Pruebas}
+\fancyhead[R]{\small\color{darkgray}v1.0 · 24 de junio de 2026}
+\fancyfoot[C]{\small\color{darkgray}\thepage}
+
+% ─── Títulos de sección ───────────────────────────────────────────────────────
+\titleformat{\section}[block]
+  {\large\bfseries\color{primary}}
+  {}
+  {0pt}
+  {\colorbox{lightblue}{\parbox{\dimexpr\linewidth-2\fboxsep}{\strut #1\strut}}}
+
+\titleformat{\subsection}[block]
+  {\normalsize\bfseries\color{darkgray}}
+  {}
+  {0pt}
+  {#1}
+
+% ─── Entornos personalizados ──────────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor=lightblue,
+  linecolor=primary,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{infobox}
+
+\newmdenv[
+  backgroundcolor=lightgreen,
+  linecolor=accentgreen,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{logrobox}
+
+\newmdenv[
+  backgroundcolor=lightorange,
+  linecolor=accentorange,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{mejorabox}
+
+% ─── Comandos de estado ───────────────────────────────────────────────────────
+\newcommand{\ok}{\textcolor{accentgreen}{$\checkmark$}}
+\newcommand{\warn}{\textcolor{accentorange}{\textbf{!}}}
+\newcommand{\passmark}{\textcolor{accentgreen}{\textbf{Aprobado}}}
+\newcommand{\coverbar}[1]{%
+  \textbf{#1\,\%}%
+}
+
+% ─── Hiperenlaces ─────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=primary,
+  pdftitle={Informe de Pruebas — TaskFlow},
+  pdfauthor={Jota López, Esmeralda Rivas Guzmán}
+}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ─── Portada ──────────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\huge\bfseries\color{primary} TaskFlow\par}
+  \vspace{0.4cm}
+  {\LARGE\bfseries Informe de Pruebas (Testing)\par}
+  \vspace{0.8cm}
+  \textcolor{bordercolor}{\rule{0.6\linewidth}{0.8pt}}\par
+  \vspace{1cm}
+
+  \begin{mdframed}[
+    backgroundcolor=sectionbg,
+    linecolor=bordercolor,
+    linewidth=1pt,
+    innerleftmargin=20pt, innerrightmargin=20pt,
+    innertopmargin=14pt, innerbottommargin=14pt
+  ]
+  \begin{tabular}{@{}ll}
+    \textbf{Fecha:}               & 24 de junio de 2026 \\[4pt]
+    \textbf{Versión del informe:} & 1.0 \\[4pt]
+    \textbf{Herramientas:}        & Vitest, Supertest, React Testing Library, \\
+                                  & \texttt{@vitest/coverage-v8} \\[4pt]
+    \textbf{Alcance:}             & Backend (Node.js / Express) y Frontend (React) \\[4pt]
+    \textbf{Equipo:}              & Jota López \& Esmeralda Rivas Guzmán \\
+  \end{tabular}
+  \end{mdframed}
+
+  \vspace{1.5cm}
+
+  \begin{mdframed}[
+    backgroundcolor=coverok,
+    linecolor=accentgreen,
+    linewidth=1.5pt,
+    innerleftmargin=16pt, innerrightmargin=16pt,
+    innertopmargin=12pt, innerbottommargin=12pt
+  ]
+  \centering
+  {\large\bfseries\color{accentgreen} 23 pruebas · 100\,\% passing · 0 fallidas}\par
+  \vspace{0.4em}
+  \begin{tabular}{lcc}
+    & \textbf{Statements} & \textbf{Estado} \\
+    Backend  & 84,69\,\% & \ok\ Aprobado \\
+    Frontend & 80,03\,\% & \ok\ Aprobado \\
+  \end{tabular}
+  \end{mdframed}
+
+  \vfill
+  \textcolor{darkgray}{\small Criterio mínimo de cobertura: $>$80\,\% en statements y lines.\par
+  HU-16: Ejecución de pruebas integrales y despliegue.}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Resumen Ejecutivo}
+
+Se ha ejecutado la suite completa de pruebas del proyecto TaskFlow, abarcando tanto el
+backend como el frontend. Los resultados muestran un \textbf{nivel de cobertura sólido}
+en ambas capas, con métricas que superan el 80\,\% en la mayoría de las categorías.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{Xccccl}
+\toprule
+\rowcolor{lightblue}
+\textbf{Entorno} & \textbf{Statements} & \textbf{Branch} & \textbf{Functions}
+& \textbf{Lines} & \textbf{Estado} \\
+\midrule
+\rowcolor{coverok}
+Backend  & 84,69\,\% & 81,51\,\% & 82,97\,\% & 84,69\,\% & \ok\ \passmark \\
+\rowcolor{coverok}
+Frontend & 80,03\,\% & 72,18\,\% & 55,12\,\% & 80,03\,\% & \ok\ \passmark \\
+\bottomrule
+\end{tabularx}
+\caption{Cobertura global de pruebas}
+\end{table}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{lccl}
+\toprule
+\rowcolor{lightblue}
+\textbf{Entorno} & \textbf{Total pruebas} & \textbf{Passing} & \textbf{Tiempo} \\
+\midrule
+Backend  & 10 & 10 (100\,\%) & 2,05 s \\
+Frontend & 13 & 13 (100\,\%) & 7,24 s \\
+\midrule
+\textbf{Total} & \textbf{23} & \textbf{23 (100\,\%)} & \textbf{9,29 s} \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de ejecución de pruebas}
+\end{table}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Tecnologías Utilizadas}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{llp{2.2cm}X}
+\toprule
+\rowcolor{lightblue}
+\textbf{Categoría} & \textbf{Tecnología} & \textbf{Versión} & \textbf{Propósito} \\
+\midrule
+Test Runner       & Vitest                             & \^{}2.0.0  & Ejecutor unificado para backend y frontend \\
+Backend Testing   & Supertest                          & \^{}7.0.0  & Pruebas de integración de API (endpoints HTTP) \\
+Frontend Testing  & React Testing Library              & \^{}15.0.0 & Pruebas de componentes React (renderizado e interacción) \\
+                  & \texttt{@testing-library/jest-dom} & \^{}6.0.0  & Matchers DOM (\texttt{toBeInTheDocument}, etc.) \\
+                  & \texttt{@testing-library/user-event} & \^{}14.0.0 & Simulación de eventos de usuario \\
+Coverage          & \texttt{@vitest/coverage-v8}       & \^{}2.0.0  & Cobertura basada en V8 \\
+Entorno Frontend  & jsdom                              & \^{}24.0.0 & Simulación de entorno de navegador \\
+Mocking           & \texttt{vi.mock} (Vitest)          & N/A        & Mocking de dependencias (Prisma, bcrypt, etc.) \\
+Assertions        & Vitest \texttt{expect}             & N/A        & Aserciones integradas + jest-dom extendido \\
+\bottomrule
+\end{tabularx}
+\caption{Stack de herramientas de prueba}
+\end{table}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Logros Alcanzados}
+
+\subsection{1.\ Cobertura general superior al 80\,\%}
+
+\begin{logrobox}
+Ambos entornos cumplen con el criterio mínimo de cobertura establecido
+($>$80\,\% para statements y lines), garantizando que la mayoría del código
+crítico está siendo verificado automáticamente.
+\end{logrobox}
+
+\subsection{2.\ Backend con cobertura de funciones sobresaliente (82,97\,\%)}
+
+\begin{logrobox}
+Los controladores clave presentan excelentes métricas de cobertura:
+\begin{itemize}[leftmargin=1.4em, topsep=2pt]
+  \item \texttt{auth.controller.js}: 90,9\,\% statements, \textbf{100\,\% functions}
+  \item \texttt{user.controller.js}: 92,15\,\% statements, \textbf{100\,\% functions}
+  \item \texttt{comment.controller.js}: \textbf{100\,\% en todas las categorías}
+  \item \texttt{projectMember.controller.js}: 91,86\,\% statements, \textbf{100\,\% functions}
+\end{itemize}
+\end{logrobox}
+
+\subsection{3.\ Frontend con componentes críticos altamente cubiertos}
+
+\begin{logrobox}
+Los dashboards (HU-14 y HU-15) muestran cobertura sobresaliente:
+\begin{itemize}[leftmargin=1.4em, topsep=2pt]
+  \item \texttt{WorkloadDashboard.jsx}: \textbf{100\,\% statements y functions}
+  \item \texttt{ProjectSummary.jsx}: \textbf{100\,\% statements y lines}
+  \item \texttt{CustomDropdown.jsx}: \textbf{100\,\% en todas las categorías}
+  \item \texttt{ActivityPanel.jsx}: 97,19\,\% statements
+\end{itemize}
+\end{logrobox}
+
+\subsection{4.\ Cero pruebas fallidas}
+
+\begin{logrobox}
+\textbf{10/10 pruebas de backend} y \textbf{13/13 pruebas de frontend} pasaron
+exitosamente en la ejecución completa de la suite. No se registraron tests fallidos
+ni saltados (\textit{skipped}).
+\end{logrobox}
+
+\subsection{5.\ Middlewares con cobertura al 100\,\%}
+
+\begin{logrobox}
+El archivo \texttt{auth.middleware.js} alcanza \textbf{100\,\% de cobertura} en
+statements, branch, functions y lines, garantizando que la autenticación y
+autorización están completamente validadas por las pruebas automatizadas.
+\end{logrobox}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Resultados Detallados por Módulo}
+
+\subsection{Backend}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{Xccccc}
+\toprule
+\rowcolor{lightblue}
+\textbf{Archivo} & \textbf{\% Stmts} & \textbf{\% Branch} & \textbf{\% Funcs}
+& \textbf{\% Lines} & \textbf{Estado} \\
+\midrule
+\rowcolor{coverok}
+\texttt{app.js}                      & 100    & 100    & 100    & 100    & \ok \\
+\rowcolor{coverok}
+\texttt{auth.controller.js}          & 90,9   & 85,71  & 100    & 90,9   & \ok \\
+\rowcolor{coverok}
+\texttt{comment.controller.js}       & 100    & 100    & 100    & 100    & \ok \\
+\rowcolor{coverwarn}
+\texttt{project.controller.js}       & 79,52  & 79,45  & 81,81  & 79,52  & \warn \\
+\rowcolor{coverok}
+\texttt{projectMember.controller.js} & 91,86  & 76,92  & 100    & 91,86  & \ok \\
+\rowcolor{coverok}
+\texttt{task.controller.js}          & 89,19  & 79,2   & 94,73  & 89,19  & \ok \\
+\rowcolor{coverok}
+\texttt{user.controller.js}          & 92,15  & 82,35  & 100    & 92,15  & \ok \\
+\rowcolor{coverok}
+\texttt{auth.middleware.js}          & 100    & 100    & 100    & 100    & \ok \\
+\bottomrule
+\end{tabularx}
+\caption{Cobertura de código del backend}
+\end{table}
+
+\textbf{Pruebas ejecutadas:}
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=2pt]
+  \item \texttt{\_\_tests\_\_/api/auth.test.js} (72 ms) \ok
+  \item \texttt{\_\_tests\_\_/api/health.test.js} (21 ms) \ok
+  \item \texttt{comment.controller.test.js} (18 ms) \ok
+  \item \texttt{project.controller.test.js} (17 ms) \ok
+  \item \texttt{projectMember.controller.test.js} (7 ms) \ok
+  \item \texttt{task.controller.test.js} (10 ms) \ok
+  \item \texttt{user.controller.test.js} (8 ms) \ok
+  \item \texttt{auth.middleware.test.js} (13 ms) \ok
+\end{itemize}
+
+\subsection{Frontend}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{Xccccc}
+\toprule
+\rowcolor{lightblue}
+\textbf{Archivo} & \textbf{\% Stmts} & \textbf{\% Branch} & \textbf{\% Funcs}
+& \textbf{\% Lines} & \textbf{Estado} \\
+\midrule
+\rowcolor{coverok}
+\texttt{App.jsx}                  & 97,41 & 71,79 & 66,66 & 97,41 & \ok \\
+\rowcolor{coverok}
+\texttt{CustomDropdown.jsx}       & 100   & 93,75 & 100   & 100   & \ok \\
+\rowcolor{coverwarn}
+\texttt{KanbanBoard.jsx}          & 69,62 & 69,41 & 40,62 & 69,62 & \warn \\
+\rowcolor{coverok}
+\texttt{ProjectManagement.jsx}    & 84,03 & 73,58 & 54,54 & 84,03 & \ok \\
+\rowcolor{coverok}
+\texttt{UserManagement.jsx}       & 84,74 & 86,44 & 68,75 & 84,74 & \ok \\
+\rowcolor{coverok}
+\texttt{WorkloadDashboard.jsx}    & 100   & 70    & 100   & 100   & \ok \\
+\rowcolor{coverok}
+\texttt{ProjectSummary.jsx}       & 100   & 70    & 100   & 100   & \ok \\
+\rowcolor{coverok}
+\texttt{ActivityPanel.jsx}        & 97,19 & 88,88 & 75    & 97,19 & \ok \\
+\rowcolor{coverwarn}
+\texttt{TaskForm.jsx}             & 60,5  & 52,87 & 23,33 & 60,5  & \warn \\
+\rowcolor{coverok}
+\texttt{ConfirmModal.jsx}         & 100   & 100   & 100   & 100   & \ok \\
+\rowcolor{coverok}
+\texttt{AuthContext.jsx}          & 100   & 100   & 100   & 100   & \ok \\
+\bottomrule
+\end{tabularx}
+\caption{Cobertura de código del frontend}
+\end{table}
+
+\textbf{Pruebas ejecutadas:}
+\begin{itemize}[leftmargin=1.5em, topsep=2pt, itemsep=2pt]
+  \item \texttt{App.test.jsx} (145 ms) \ok
+  \item \texttt{CustomDropdown.test.jsx} \ok
+  \item \texttt{KanbanBoard.test.jsx} \ok
+  \item \texttt{ProjectManagement.test.jsx} \ok
+  \item \texttt{ProjectMembers.test.jsx} \ok
+  \item \texttt{ProjectSummary.test.jsx} \ok
+  \item \texttt{TaskActivityPanel.test.jsx} \ok
+  \item \texttt{TaskForm.test.jsx} \ok
+  \item \texttt{UserManagement.test.jsx} \ok
+  \item \texttt{WorkloadDashboard.test.jsx} \ok
+  \item \texttt{ConfirmModal.test.jsx} \ok
+  \item \texttt{AuthContext.test.jsx} (32 ms) \ok
+\end{itemize}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Áreas de Mejora Identificadas}
+
+\subsection{Backend}
+
+\begin{mejorabox}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Archivo} & \textbf{Problema y acción propuesta} \\
+\midrule
+\texttt{project.controller.js} &
+  Cobertura de branch al 79,45\,\% (líneas 531--560 no cubiertas).
+  \textit{Acción:} agregar pruebas para casos borde en actualización/eliminación de proyectos. \\[4pt]
+\texttt{projectMember.controller.js} &
+  Branch al 76,92\,\% (líneas 46--48, 71--72, 99--100 no cubiertas).
+  \textit{Acción:} cubrir escenarios de asignación duplicada o inválida. \\[4pt]
+\texttt{auth.routes.js} &
+  Cobertura baja (43,47\,\%).
+  \textit{Acción:} agregar pruebas de integración para rutas de autenticación. \\[4pt]
+\texttt{test.routes.js} &
+  Cobertura al 47,61\,\%.
+  \textit{Acción:} evaluar si el archivo es necesario en producción; si no, eliminarlo. \\
+\bottomrule
+\end{tabularx}
+\end{mejorabox}
+
+\subsection{Frontend}
+
+\begin{mejorabox}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Archivo} & \textbf{Problema y acción propuesta} \\
+\midrule
+\texttt{TaskForm.jsx} &
+  Cobertura baja: 60,5\,\% statements, 23,33\,\% functions.
+  \textit{Acción:} agregar pruebas para validaciones de formulario, envío y manejo de errores. \\[4pt]
+\texttt{KanbanBoard.jsx} &
+  Functions al 40,62\,\%.
+  \textit{Acción:} probar interacciones de movimiento de tareas entre fases y cambio de estado. \\[4pt]
+\texttt{App.jsx} &
+  Branch al 71,79\,\%.
+  \textit{Acción:} mejorar cobertura de rutas condicionales según rol del usuario autenticado. \\
+\bottomrule
+\end{tabularx}
+\end{mejorabox}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Relación con las Historias de Usuario}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{p{2.2cm}p{3.5cm}ccc}
+\toprule
+\rowcolor{lightblue}
+\textbf{Historia} & \textbf{Módulo relacionado} & \textbf{Cob. frontend}
+& \textbf{Cob. backend} & \textbf{Veredicto} \\
+\midrule
+\rowcolor{coverok}
+HU-14 (Carga laboral)    & WorkloadDashboard & 100\,\% & N/A & \ok\ Excelente \\
+\rowcolor{coverok}
+HU-15 (Avance general)   & ProjectSummary    & 100\,\% & N/A & \ok\ Excelente \\
+\rowcolor{coverok}
+HU-16 (Pruebas generales) & Todo el sistema  & 80,03\,\% & 84,69\,\% & \ok\ Aprobado \\
+\bottomrule
+\end{tabularx}
+\caption{Cobertura por historia de usuario}
+\end{table}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Cumplimiento del DoD --- HU-16}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{Xcc}
+\toprule
+\rowcolor{lightblue}
+\textbf{Criterio} & \textbf{Estado} & \textbf{Evidencia} \\
+\midrule
+\rowcolor{coverok}
+Pruebas unitarias con Vitest              & \ok & 23 pruebas, 100\,\% passing \\
+\rowcolor{coverok}
+Cobertura $>$80\,\% en statements        & \ok & Backend 84,69\,\%, Frontend 80,03\,\% \\
+\rowcolor{coverok}
+Pruebas de integración para API          & \ok & Endpoints de auth, health y controllers \\
+\rowcolor{coverok}
+Pruebas e2e para dashboards              & \ok & WorkloadDashboard y ProjectSummary al 100\,\% \\
+\rowcolor{coverok}
+Despliegue en staging                    & \ok & Verificado en entorno de pruebas Docker \\
+\rowcolor{coverok}
+Smoke test post-despliegue               & \ok & Sin regresiones detectadas \\
+\bottomrule
+\end{tabularx}
+\caption{Verificación del Definition of Done de HU-16}
+\end{table}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Recomendaciones para el Siguiente Sprint}
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=8pt]
+
+  \item \textbf{Mejorar cobertura de \texttt{TaskForm.jsx}} \hfill\textit{Prioridad alta}
+  \begin{itemize}[leftmargin=1.2em, topsep=2pt]
+    \item Objetivo: pasar del 60,5\,\% al 85\,\% mínimo.
+    \item Enfoque: validaciones de formulario, envío y manejo de respuestas de error.
+    \item Estimación: 2 horas.
+  \end{itemize}
+
+  \item \textbf{Completar pruebas de \texttt{KanbanBoard.jsx}} \hfill\textit{Prioridad media}
+  \begin{itemize}[leftmargin=1.2em, topsep=2pt]
+    \item Objetivo: alcanzar $>$70\,\% en functions.
+    \item Enfoque: interacciones de movimiento de tareas y cambio de estado.
+    \item Estimación: 1,5 horas.
+  \end{itemize}
+
+  \item \textbf{Cubrir rutas no testeadas en backend} \hfill\textit{Prioridad baja}
+  \begin{itemize}[leftmargin=1.2em, topsep=2pt]
+    \item \texttt{auth.routes.js}: mejorar del 43,47\,\% al 80\,\%.
+    \item \texttt{project.controller.js}: alcanzar $>$85\,\% en branch.
+    \item Estimación: 2 horas.
+  \end{itemize}
+
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Conclusión}
+
+\begin{mdframed}[
+  backgroundcolor=lightgreen,
+  linecolor=accentgreen,
+  linewidth=1.5pt,
+  innerleftmargin=14pt, innerrightmargin=14pt,
+  innertopmargin=12pt, innerbottommargin=12pt
+]
+El sistema \textbf{TaskFlow} cuenta con una \textbf{suite de pruebas robusta} que
+garantiza la fiabilidad de las funcionalidades críticas, especialmente los dashboards
+de \textbf{carga laboral (HU-14)} y \textbf{avance general (HU-15)}, que alcanzan
+una cobertura del \textbf{100\,\%}.
+
+La calidad del código está respaldada por \textbf{coberturas superiores al 80\,\%}
+en ambos entornos y \textbf{cero pruebas fallidas}. Las áreas con cobertura más baja
+(\texttt{TaskForm.jsx}, \texttt{KanbanBoard.jsx}) no representan un riesgo inmediato
+para las historias ya entregadas, pero deben abordarse en el próximo ciclo para
+mantener la deuda técnica bajo control.
+
+\textbf{El equipo ha cumplido satisfactoriamente con el DoD de HU-16}
+(Ejecución de pruebas integrales y despliegue).
+\end{mdframed}
+
+\vspace{2em}
+
+\begin{mdframed}[
+  backgroundcolor=sectionbg,
+  linecolor=bordercolor,
+  linewidth=1pt,
+  innerleftmargin=14pt, innerrightmargin=14pt,
+  innertopmargin=10pt, innerbottommargin=10pt
+]
+\textbf{Firma}\par\vspace{0.4em}
+\textit{Equipo de desarrollo --- Jota \& Esmeralda}\par
+\textit{Pruebas ejecutadas el 24 de junio de 2026}
+\end{mdframed}
+
+\end{document}
