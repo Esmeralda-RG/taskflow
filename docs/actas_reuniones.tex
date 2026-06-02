@@ -1,0 +1,761 @@
+\documentclass[12pt, a4paper]{article}
+
+% ─── Paquetes ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{float}
+
+% ─── Geometría ───────────────────────────────────────────────────────────────
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm, headheight=15pt}
+
+% ─── Colores ─────────────────────────────────────────────────────────────────
+\definecolor{primary}{HTML}{1A56DB}
+\definecolor{lightblue}{HTML}{EBF5FF}
+\definecolor{darkgray}{HTML}{374151}
+\definecolor{accentgreen}{HTML}{046C4E}
+\definecolor{lightgreen}{HTML}{F3FAF7}
+\definecolor{accentorange}{HTML}{B45309}
+\definecolor{lightorange}{HTML}{FFFBEB}
+\definecolor{bordercolor}{HTML}{D1D5DB}
+\definecolor{sectionbg}{HTML}{F9FAFB}
+
+% ─── Encabezado y pie de página ───────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{primary}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\small\color{darkgray}\textbf{TaskFlow} — Actas de Reunión}
+\fancyhead[R]{\small\color{darkgray}Esmeralda Rivas \& Jota López}
+\fancyfoot[C]{\small\color{darkgray}\thepage}
+
+% ─── Títulos de sección ───────────────────────────────────────────────────────
+\titleformat{\section}[block]
+  {\large\bfseries\color{primary}}
+  {}
+  {0pt}
+  {\colorbox{lightblue}{\parbox{\dimexpr\linewidth-2\fboxsep}{\strut #1\strut}}}
+
+\titleformat{\subsection}[block]
+  {\normalsize\bfseries\color{darkgray}}
+  {}
+  {0pt}
+  {#1}
+
+% ─── Entornos personalizados ──────────────────────────────────────────────────
+\newmdenv[
+  backgroundcolor=lightblue,
+  linecolor=primary,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{infobox}
+
+\newmdenv[
+  backgroundcolor=lightgreen,
+  linecolor=accentgreen,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{acuerdobox}
+
+\newmdenv[
+  backgroundcolor=lightorange,
+  linecolor=accentorange,
+  linewidth=2pt,
+  leftline=true, rightline=false, topline=false, bottomline=false,
+  innerleftmargin=10pt, innerrightmargin=10pt,
+  innertopmargin=6pt, innerbottommargin=6pt,
+  skipabove=6pt, skipbelow=6pt
+]{pendientebox}
+
+% ─── Comando para cabecera de acta ────────────────────────────────────────────
+\newcommand{\actaheader}[5]{%
+  \begin{mdframed}[
+    backgroundcolor=sectionbg,
+    linecolor=bordercolor,
+    linewidth=1pt,
+    innerleftmargin=12pt, innerrightmargin=12pt,
+    innertopmargin=10pt, innerbottommargin=10pt,
+    skipabove=8pt, skipbelow=8pt
+  ]
+  \begin{tabularx}{\linewidth}{@{}lX@{}}
+    \textbf{Fecha:}       & #1 \\[2pt]
+    \textbf{Hora:}        & #2 \\[2pt]
+    \textbf{Modalidad:}   & #3 \\[2pt]
+    \textbf{Asistentes:}  & #4 \\[2pt]
+    \textbf{Sprint ref.:} & #5 \\
+  \end{tabularx}
+  \end{mdframed}%
+}
+
+% ─── Comando para turno de palabra ────────────────────────────────────────────
+\newcommand{\jota}[1]{\noindent\textbf{\color{primary}Jota:} #1\par\smallskip}
+\newcommand{\esme}[1]{\noindent\textbf{\color{accentgreen}Esmeralda:} #1\par\smallskip}
+
+% ─── Hiperenlaces ─────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=primary,
+  pdftitle={Actas de Reunión — TaskFlow},
+  pdfauthor={Jota López, Esmeralda Rivas Guzmán}
+}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ─── Portada ──────────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\huge\bfseries\color{primary} TaskFlow\par}
+  \vspace{0.4cm}
+  {\LARGE\bfseries Actas de Reunión de Equipo\par}
+  \vspace{0.8cm}
+  \textcolor{bordercolor}{\rule{0.6\linewidth}{0.8pt}}\par
+  \vspace{0.8cm}
+  {\large Sistema de Gestión de Proyectos y Tareas\par}
+  \vspace{2cm}
+
+  \begin{mdframed}[
+    backgroundcolor=lightblue,
+    linecolor=primary,
+    linewidth=1.5pt,
+    innerleftmargin=20pt, innerrightmargin=20pt,
+    innertopmargin=16pt, innerbottommargin=16pt
+  ]
+    \centering
+    \textbf{\large Integrantes del Equipo}\par\vspace{0.5em}
+    \begin{tabular}{ll}
+      \textbf{Jota López}              & Desarrollo Backend / Arquitectura \\[4pt]
+      \textbf{Esmeralda Rivas Guzmán}  & Desarrollo Frontend / Diseño UI   \\
+    \end{tabular}
+  \end{mdframed}
+
+  \vspace{1.5cm}
+  {\large\textbf{Período cubierto:} Marzo -- Junio 2026\par}
+  \vspace{0.5cm}
+  {\large\textbf{Metodología:} Scrum (sprints semanales)\par}
+  \vspace{0.5cm}
+  {\large\textbf{Total de reuniones documentadas:} 10\par}
+  \vfill
+  \textcolor{darkgray}{\small Documento generado a partir del tablero de ClickUp del proyecto.\par
+  Espacio: \textit{Espacio del equipo [ES-LA]}}
+\end{titlepage}
+
+% ─── Tabla de contenidos ──────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════════════════════════════════════════
+%  FASE 1 — GESTIÓN Y ANÁLISIS
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Fase de Gestión y Análisis (Marzo 2026)}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 1 — Kick-off y Levantamiento de Requisitos}
+\actaheader
+  {Lunes, 2 de marzo de 2026}
+  {10:00 -- 11:15 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Gestión y Análisis — Sprint 1 (3/2 -- 3/15)}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Definición del alcance del proyecto TaskFlow.
+  \item Identificación de requisitos funcionales y no funcionales.
+  \item Asignación inicial de responsabilidades.
+  \item Elaboración del Diccionario EDT.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\jota{Bueno, empecemos. Ya tenemos claro que el proyecto es un sistema de gestión de proyectos y tareas orientado a equipos pequeños. Lo que necesitamos definir hoy es qué funcionalidades son obligatorias para el MVP y cuáles son opcionales.}
+
+\esme{Estoy de acuerdo. Creo que lo más crítico es tener autenticación con roles, la gestión de proyectos y tareas, y algún tipo de tablero Kanban. Sin eso no tiene sentido el sistema.}
+
+\jota{Exacto. Yo añadiría también el control de acceso por rol desde el inicio, porque si lo dejamos para después, tenemos que refactorizar toda la API. Es mucho mejor diseñarlo bien desde el comienzo.}
+
+\esme{Sí, tiene sentido. ¿Y qué ponemos como requisitos no funcionales? Yo creo que deberíamos incluir que la interfaz sea responsiva, que el tiempo de respuesta de la API sea razonable, y que el sistema soporte Docker para el despliegue.}
+
+\jota{Perfecto. Agrego que la autenticación debe usar JWT con expiración configurable, y que las contraseñas deben guardarse con hash. También deberíamos mencionar que el sistema tiene que ser mantenible, así que vamos a documentar la arquitectura desde el principio.}
+
+\esme{De acuerdo. Respecto al Diccionario EDT, ¿lo dividimos por fases del proyecto o por módulos funcionales?}
+
+\jota{Yo prefiero por fases: Gestión, Diseño y Desarrollo. Así queda alineado con cómo lo tenemos en ClickUp y es más fácil de hacer seguimiento.}
+
+\esme{Me parece bien. Yo me encargo de estructurar el documento del Diccionario EDT esta semana y tú revisas los requisitos que voy levantando, ¿te parece?}
+
+\jota{Perfecto. Yo en paralelo empiezo a pensar en la arquitectura técnica, aunque eso lo formalizamos en la fase de Diseño.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Esmeralda redacta el Formato Diccionario EDT y el documento de Requisitos Funcionales y No Funcionales.
+  \item Jota revisa y valida ambos documentos antes del 15 de marzo.
+  \item El MVP incluye: autenticación JWT con roles, gestión de proyectos, gestión de tareas y tablero Kanban.
+  \item El sistema será contenerizado con Docker desde el inicio.
+\end{itemize}
+\end{acuerdobox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 2 — Revisión Sprint 1 y Planificación Sprint 2}
+\actaheader
+  {Lunes, 16 de marzo de 2026}
+  {09:30 -- 10:30 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Gestión y Análisis — Sprint 2 (16/3 -- 22/3)}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Revisión de entregables del Sprint 1: Requisitos y EDT.
+  \item Planificación del Diagrama de Gantt.
+  \item Identificación de hitos clave del proyecto.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\esme{Terminé el Diccionario EDT y el documento de requisitos. Los subí al repositorio. Quedaron bastante completos, aunque tuve que tomar algunas decisiones sobre los requisitos no funcionales sin consultarte, espero que estén bien.}
+
+\jota{Los revisé esta mañana. Están bien estructurados. Solo añadiría como requisito no funcional que el sistema debe manejar correctamente los errores de la API con códigos HTTP apropiados, pero lo podemos ajustar ahora sin problema. El EDT me parece que cubre bien las tres fases.}
+
+\esme{Bien, lo agrego. Ahora para el Gantt, ¿usamos alguna herramienta específica o lo hacemos directamente en el documento?}
+
+\jota{Yo creo que lo más práctico es hacerlo en una herramienta visual y luego exportarlo. Así podemos actualizar si cambian las fechas. ¿Tienes experiencia con alguna?}
+
+\esme{Puedo usar GanttProject o simplemente Google Sheets con formato visual. Lo importante es que refleje bien las dependencias entre fases.}
+
+\jota{Sí, las dependencias son clave. La fase de Desarrollo no puede empezar hasta que el Diseño esté listo, y el Diseño depende de que los requisitos estén aprobados. Eso tiene que quedar claro en el Gantt.}
+
+\esme{Perfecto. También hay que incluir los sprints de desarrollo con sus fechas tentativas. Según lo que tenemos en ClickUp, el desarrollo empieza el 11 de mayo, así que tenemos tiempo.}
+
+\jota{Correcto. Dejemos las fechas de desarrollo como estimaciones por ahora. Lo importante esta semana es tener el Gantt completo con todas las fases.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Ambos elaboran el Diagrama de Gantt para entrega el 22 de marzo.
+  \item El Gantt debe reflejar las dependencias entre las tres fases del proyecto.
+  \item Jota ajusta el documento de requisitos con el punto adicional sobre manejo de errores HTTP.
+\end{itemize}
+\end{acuerdobox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 3 — Revisión Sprints 2-3 y Cierre de Gestión}
+\actaheader
+  {Lunes, 30 de marzo de 2026}
+  {10:00 -- 11:00 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Gestión y Análisis — Sprint 4 (30/3 -- 5/4)}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Revisión del Diagrama de Gantt y Registro de Riesgos.
+  \item Consolidación de entregables de planificación.
+  \item Cierre formal de la fase de Gestión.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\jota{El Gantt quedó bien. Refleja correctamente las tres fases y las dependencias. Lo que me parece que faltó definir mejor son los criterios de aceptación por sprint en Desarrollo.}
+
+\esme{Sí, eso lo añadimos al Registro de Riesgos como un riesgo de alcance. También identifiqué el riesgo de que el equipo es de solo dos personas, lo cual puede generar cuellos de botella si una persona se bloquea.}
+
+\jota{Buen punto. ¿Y cómo mitigamos ese riesgo?}
+
+\esme{Documentando bien el trabajo de cada uno, haciendo revisiones cruzadas de código y dejando comentarios claros. Si uno se bloquea, el otro puede retomar la tarea.}
+
+\jota{De acuerdo. Otro riesgo que veo es la integración frontend-backend. Si trabajamos en silos y no probamos la integración frecuentemente, podemos llegar al final con problemas difíciles de resolver.}
+
+\esme{Totalmente. Para eso propongo que en cada sprint de Desarrollo hagamos al menos una sesión de integración y prueba conjunta antes del cierre del sprint.}
+
+\jota{Me parece excelente. ¿Agregamos eso al documento de entregables de planificación como buena práctica del equipo?}
+
+\esme{Sí, lo agrego. Creo que con el Registro de Riesgos y los entregables de planificación, cerramos bien la fase de Gestión.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Se cierra oficialmente la Fase de Gestión y Análisis.
+  \item Se documenta como buena práctica: una sesión de integración por sprint de Desarrollo.
+  \item El Registro de Riesgos incluye: cuellos de botella por equipo reducido e integración frontend-backend tardía.
+  \item La próxima reunión inicia la Fase de Diseño (15 de abril).
+\end{itemize}
+\end{acuerdobox}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+%  FASE 2 — DISEÑO
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Fase de Diseño (Abril -- Mayo 2026)}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 4 — Inicio de Diseño: Wireframes y Prototipos}
+\actaheader
+  {Martes, 15 de abril de 2026}
+  {10:00 -- 11:00 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Diseño — Sprint 1 (4/15 -- 4/21)}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item División de tareas: wireframes vs. prototipos de alta fidelidad.
+  \item Definición de paleta de colores y sistema de diseño.
+  \item Pantallas prioritarias a diseñar en el sprint.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\esme{Para los wireframes, propongo usar Miro. Es más rápido para hacer bocetos y puedo compartirlo fácilmente contigo para que des retroalimentación en tiempo real.}
+
+\jota{Me parece bien. Yo mientras tanto me encargo de los prototipos en Figma una vez que tengamos los wireframes base aprobados, así los prototipos ya tienen una estructura clara detrás.}
+
+\esme{Perfecto. ¿Por qué pantalla empezamos? Yo diría que la más crítica es el login, luego el listado de proyectos, y el tablero Kanban.}
+
+\jota{Coincido. Agrego el panel de gestión de usuarios para administradores, porque ahí es donde se ve el rol diferenciado. Si eso no queda claro en el diseño, en desarrollo vamos a tener problemas.}
+
+\esme{Sí, tiene razón. También tenemos que pensar en la navegación general: sidebar o topbar, si usamos modales o páginas separadas para las formularios...}
+
+\jota{Yo prefiero sidebar fijo con topbar para el usuario activo. Y para formularios de creación y edición, modales. Así no rompemos el flujo del usuario.}
+
+\esme{De acuerdo con los modales. Para el sidebar, ¿qué secciones ponemos?}
+
+\jota{Como mínimo: Dashboard, Proyectos, y si hay tiempo, Reportes. Para la versión MVP eso es suficiente.}
+
+\esme{Listo, empiezo hoy con los wireframes de esas pantallas en Miro y te notifico cuando estén listos para revisión.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Esmeralda desarrolla wireframes en Miro (login, listado proyectos, Kanban, gestión usuarios).
+  \item Jota desarrolla prototipos de alta fidelidad en Figma basados en los wireframes.
+  \item Diseño general: sidebar fijo, topbar con info de usuario, formularios en modal.
+  \item Entrega esperada: 21 de abril.
+\end{itemize}
+\end{acuerdobox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 5 — Arquitectura del Sistema y Configuración Docker}
+\actaheader
+  {Martes, 22 de abril de 2026}
+  {10:00 -- 11:30 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Diseño — Sprint 2 (4/22 -- 4/28)}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Revisión de wireframes y prototipos del Sprint 1.
+  \item Definición de la arquitectura técnica del sistema.
+  \item Planificación de la configuración Docker.
+  \item Inicialización de los proyectos frontend y backend.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\jota{Los wireframes en Miro están muy bien. Me gustó especialmente la vista del tablero Kanban con las columnas diferenciadas. Los prototipos en Figma los hice basándome en eso y quedaron bastante parecidos. Creo que ya podemos arrancar con código.}
+
+\esme{Bien. ¿Y qué stack definimos? Ya habíamos hablado de React y Node, pero ¿confirmamos las versiones y librerías?}
+
+\jota{Para el backend: Node con Express y Prisma como ORM. PostgreSQL como base de datos. Para el frontend: React con Vite por el rendimiento en desarrollo, y TailwindCSS para no tener que escribir CSS desde cero.}
+
+\esme{Me parece perfecto. Yo ya tengo experiencia con Vite y Tailwind, así que eso me ayuda. ¿Y la autenticación?}
+
+\jota{JWT. Yo me encargo de toda la lógica del backend: generación del token, middleware de autenticación y middleware de autorización por rol. Tú del lado del frontend haces el AuthContext en React y las rutas protegidas.}
+
+\esme{Perfecto, así nos dividimos bien el trabajo de autenticación. ¿Y Docker?}
+
+\jota{Hacemos tres servicios en el docker-compose: frontend, backend y PostgreSQL. Yo hago el Dockerfile del backend y el docker-compose completo con las dependencias entre servicios. Tú haces el Dockerfile del frontend.}
+
+\esme{Entendido. ¿Volúmenes persistentes para la base de datos?}
+
+\jota{Sí, imprescindible. Si no, perdemos datos cada vez que bajamos los contenedores. Lo incluyo en la configuración.}
+
+\esme{También deberíamos implementar la ruta \texttt{/api/health} desde el principio para poder verificar que el backend responde antes de empezar con las funcionalidades.}
+
+\jota{Buena idea. Eso también nos sirve para el healthcheck de Docker Compose. Lo añadimos al sprint.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Stack confirmado: React + Vite + Tailwind (frontend), Node + Express + Prisma + PostgreSQL (backend).
+  \item Jota: Dockerfile backend, docker-compose.yml con tres servicios y volúmenes, schema inicial de Prisma.
+  \item Esmeralda: Dockerfile frontend, inicializar proyecto React + Vite + Tailwind, ruta \texttt{/api/health}, README.
+  \item Jota documenta la arquitectura en diagrama de capas y el flujo de autenticación JWT.
+\end{itemize}
+\end{acuerdobox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 6 — Modelo Entidad-Relación y Arranque de Desarrollo}
+\actaheader
+  {Martes, 29 de abril de 2026}
+  {09:30 -- 10:45 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Diseño — Sprint 3 (4/29 -- 5/5) / Previo Desarrollo Sprint 1}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Revisión de la arquitectura y la configuración Docker.
+  \item Diseño del modelo entidad-relación de la base de datos.
+  \item Alineación previa al inicio del desarrollo.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\esme{La configuración Docker funcionó bien en mi equipo. El frontend conecta correctamente con el backend por la red interna de Docker. La ruta \texttt{/api/health} responde 200. Podemos decir que el entorno está listo.}
+
+\jota{Perfecto. Por mi parte, el diagrama de arquitectura ya documenta bien las tres capas y el flujo JWT. Ahora lo que necesitamos es tener claro el modelo de datos antes de empezar a codear, porque cambiar el esquema de Prisma a mitad del desarrollo es costoso.}
+
+\esme{Totalmente de acuerdo. ¿Cuáles son las entidades principales que identificas?}
+
+\jota{User, Project, Phase, Task, Comment y ProjectMember para la relación muchos a muchos entre usuarios y proyectos. Eso cubre el MVP completo.}
+
+\esme{Yo añadiría un campo para el archivo adjunto en Comment, porque según los requisitos queremos soportar adjuntos en comentarios.}
+
+\jota{Cierto, lo había olvidado. Podemos agregar \texttt{attachmentUrl} y \texttt{attachmentName} en la entidad Comment. Eso es suficiente para el MVP sin complicar demasiado el modelo.}
+
+\esme{Me encargo de identificar todas las entidades a partir de los requisitos funcionales, definir los atributos y tipos de dato, establecer las relaciones y cardinalidades, y luego diagramar el ER en la herramienta que usamos.}
+
+\jota{Y yo hago la revisión final del diagrama para asegurar que esté alineado con lo que voy a implementar en Prisma. ¿Te parece si lo tenemos listo para el 5 de mayo?}
+
+\esme{Sí, eso me da tiempo suficiente. Cuando lo tenga, te lo comparto para revisión antes de la fecha límite.}
+
+\jota{Perfecto. Con eso cerramos Diseño y el 11 de mayo arrancamos Desarrollo al 100\%.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Esmeralda diseña el diagrama ER completo (entidades, atributos, relaciones) para el 5 de mayo.
+  \item Jota realiza la revisión final del ER y da el visto bueno antes del inicio del desarrollo.
+  \item Entidades definidas: User, Project, Phase, Task, Comment (con adjuntos), ProjectMember.
+  \item Inicio oficial del desarrollo: 11 de mayo de 2026.
+\end{itemize}
+\end{acuerdobox}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+%  FASE 3 — DESARROLLO
+% ═══════════════════════════════════════════════════════════════════════════════
+\section{Fase de Desarrollo (Mayo -- Junio 2026)}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 7 — Revisión Sprint 1: Autenticación y Gestión de Usuarios}
+\actaheader
+  {Sábado, 17 de mayo de 2026}
+  {10:00 -- 11:15 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Desarrollo — Sprint 1 (5/11 -- 5/17)}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Revisión del Sprint 1 de Desarrollo: autenticación y usuarios.
+  \item Demo de funcionalidades implementadas.
+  \item Identificación de deuda técnica.
+  \item Planificación del Sprint 2.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\jota{Terminé el backend de autenticación. El endpoint \texttt{POST /api/auth/login} valida credenciales, genera el JWT firmado y lo retorna. El middleware de autenticación verifica el token en cada request protegido, y el middleware de autorización revisa el rol. Puedes hacer las pruebas con el usuario admin que sembré en la base de datos.}
+
+\esme{Perfecto. Yo implementé el lado del frontend: la pantalla de login en React, el AuthContext que guarda el token y el usuario, las rutas protegidas con React Router, y también el botón de cierre de sesión en el navbar. Todo funciona bien con el backend de Jota.}
+
+\jota{Excelente. ¿Algún problema que encontraste al integrar?}
+
+\esme{Tuve un problema menor con los headers CORS al principio, pero lo resolví configurando el middleware de CORS en el backend para aceptar el origen del frontend. También noté que cuando el token expira, el frontend no redirige automáticamente al login, simplemente falla silenciosamente.}
+
+\jota{Buen punto. Tengo que añadir un interceptor en el cliente HTTP del frontend que detecte el 401 y haga logout automático. Lo agrego como deuda técnica para este sprint o el siguiente.}
+
+\esme{Yo puedo implementar eso en el AuthContext. Lo hago esta semana. También terminé los endpoints de gestión de usuarios: \texttt{POST /api/users} con hash de contraseña, \texttt{GET /api/users}, y Jota hizo el PATCH y DELETE.}
+
+\jota{Sí, implementé el \texttt{DELETE /api/users/:id} con validación para que un usuario no pueda eliminarse a sí mismo, y el PATCH para actualizar datos. Del lado del frontend, hice la pantalla de gestión de usuarios para admin con el formulario modal de creación.}
+
+\esme{Y yo hice los modales de edición de rol y confirmación de eliminación, y los botones en la tabla. Creo que el módulo de usuarios está bastante completo.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Sprint 1 cerrado con éxito: autenticación JWT, cierre de sesión y CRUD de usuarios completos.
+  \item Esmeralda implementa interceptor HTTP para redirect automático al expirar el token.
+  \item El Sprint 2 inicia el 18 de mayo con foco en gestión de proyectos y tablero Kanban.
+\end{itemize}
+\end{acuerdobox}
+
+\begin{pendientebox}
+\textbf{Deuda técnica registrada:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Interceptor HTTP para manejo automático de expiración del JWT (401 → logout).
+\end{itemize}
+\end{pendientebox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 8 — Revisión Sprint 2: Proyectos, Tareas y Kanban}
+\actaheader
+  {Domingo, 24 de mayo de 2026}
+  {10:00 -- 12:00 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Desarrollo — Sprint 2 (5/18 -- 5/24)}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Demo del módulo de proyectos.
+  \item Demo del tablero Kanban y movimiento de tareas.
+  \item Revisión de asignación de responsables y registro de tiempo.
+  \item Planificación Sprint 3.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\jota{Este sprint fue el más denso hasta ahora. Del lado del backend, implementé todos los endpoints de proyectos: \texttt{POST}, \texttt{GET}, \texttt{PATCH} y \texttt{DELETE}, además del endpoint de creación de fase personalizada y los de asociación y eliminación de miembros. También los endpoints de cambio de fase de tarea, asignación de responsable y registro de tiempo real con acumulación.}
+
+\esme{Y yo del frontend implementé toda la UI correspondiente: el listado de proyectos, los formularios de creación y edición con validación de fechas, los modales de confirmación, el panel de gestión del equipo, el tablero Kanban con columnas, las tarjetas de tarea, el movimiento de tareas entre fases, la identificación visual de tareas vencidas, el selector de ejecutor y el formulario de registro de tiempo.}
+
+\jota{Fue un sprint muy productivo. ¿Tuviste algún problema con el Drag \& Drop del Kanban?}
+
+\esme{Decidí no usar Drag \& Drop por el momento para no añadir una dependencia más. En su lugar, implementé botones de mover a la fase anterior/siguiente, que funcionan bien y es más accesible. Si hay tiempo al final, lo mejoramos.}
+
+\jota{Me parece una decisión sensata. La funcionalidad es la misma y no dependemos de librerías externas. También noté que la tarjeta de tarea vencida tiene un borde rojo en el frontend, eso está bien.}
+
+\esme{Sí, y el backend ya calcula si la tarea está vencida basándose en la fecha de vencimiento y el estado. Así el frontend solo consume esa información.}
+
+\jota{Exacto, mejor tener esa lógica en el backend para que sea consistente. ¿Algo pendiente de este sprint?}
+
+\esme{El formulario de asignación de responsable todavía no filtra los usuarios por los que pertenecen al proyecto. Actualmente muestra todos los usuarios del sistema. Eso hay que corregirlo.}
+
+\jota{Tienes razón. Yo ya implementé el filtro en el backend, el endpoint retorna solo los miembros del proyecto. El problema debe estar en cómo el frontend construye la petición. Lo revisamos juntos después de la reunión.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Sprint 2 cerrado: proyectos, tareas, Kanban, fases personalizadas y registro de tiempo completos.
+  \item Jota y Esmeralda corrigen juntos el filtro de miembros en el selector de responsable.
+  \item Sprint 3 (25-31 mayo): comentarios en tareas, adjuntos, dashboards de carga y avance.
+\end{itemize}
+\end{acuerdobox}
+
+\begin{pendientebox}
+\textbf{Corrección urgente:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Selector de responsable de tarea debe filtrar solo miembros del proyecto actual.
+\end{itemize}
+\end{pendientebox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 9 — Revisión Sprint 3: Comentarios, Adjuntos y Dashboards}
+\actaheader
+  {Sábado, 31 de mayo de 2026}
+  {10:30 -- 12:00 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Desarrollo — Sprint 3 (5/25 -- 5/31)}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Demo del módulo de comentarios con adjuntos.
+  \item Demo de los dashboards de carga laboral y avance del proyecto.
+  \item Revisión de la corrección del filtro de miembros.
+  \item Planificación del Sprint 4 (cierre).
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\jota{Lo primero: la corrección del filtro de miembros quedó bien. Era un problema en el frontend, como sospechaba.}
+
+\esme{Sí, no estaba pasando el ID del proyecto en la petición. Ya está corregido y funciona perfecto. Ahora solo aparecen los miembros del proyecto en el selector.}
+
+\jota{Sobre los comentarios: implementé los endpoints de creación y listado. También configuré multer para la carga de archivos en el backend, el endpoint de carga con validación de formato y tamaño, y el almacenamiento en volumen Docker para que los archivos persistan.}
+
+\esme{Y yo diseñé e implementé la sección de comentarios en la vista de detalle de tarea, incluyendo el selector de tipo de interacción con etiquetas visuales, el componente de carga de archivos en el formulario de comentario, y la visualización y descarga de adjuntos. Quedó bastante bien.}
+
+\jota{Lo vi y sí, la interfaz de comentarios es limpia. Los dashboards, ¿cómo quedaron?}
+
+\esme{Implementé los tres componentes: el dashboard principal con resumen del proyecto, la gráfica de progreso de tareas por fase, y la gráfica comparativa de tiempo estimado vs. real. Consumen los endpoints que tú hiciste.}
+
+\jota{Exacto, implementé el endpoint de resumen general del proyecto y el endpoint de carga laboral por usuario. La carga laboral calcula el número de tareas activas y el tiempo estimado pendiente por persona.}
+
+\esme{Funciona bien. Hay un caso borde que notamos: cuando un usuario no tiene tareas asignadas no aparece en el dashboard de carga laboral. ¿Es un bug o un comportamiento esperado?}
+
+\jota{Es un comportamiento esperado por ahora. Si no tiene tareas, no tiene carga. Pero si queremos mostrar a todos los miembros aunque su carga sea cero, lo podemos ajustar en el Sprint 4. Depende del tiempo.}
+
+\esme{Lo añado como mejora opcional para el Sprint 4. Para el sprint final también queda la ejecución de pruebas integrales, el despliegue y la verificación de accesibilidad en los dashboards.}
+
+\jota{Sí. El Sprint 4 es básicamente cierre y calidad. Tenemos que asegurarnos de que todo el flujo funciona de punta a punta y que el despliegue con Docker es limpio.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Sprint 3 cerrado: comentarios con adjuntos y dashboards de carga y avance completos.
+  \item Corrección previa pendiente resuelta: filtro de miembros funcionando.
+  \item Sprint 4 (1-7 junio): pruebas integrales, despliegue y verificación de accesibilidad.
+  \item Mejora opcional Sprint 4: mostrar todos los miembros en dashboard de carga, incluso con carga cero.
+\end{itemize}
+\end{acuerdobox}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Reunión 10 — Cierre del Proyecto: Pruebas, Despliegue y Retrospectiva}
+\actaheader
+  {Domingo, 7 de junio de 2026}
+  {10:00 -- 12:30 h}
+  {Videollamada (Google Meet)}
+  {Jota López, Esmeralda Rivas Guzmán}
+  {Desarrollo — Sprint 4 (6/1 -- 6/7) — Reunión de Cierre}
+
+\subsubsection*{Agenda}
+\begin{enumerate}[leftmargin=1.5em]
+  \item Resultados de las pruebas integrales.
+  \item Verificación de accesibilidad en dashboards.
+  \item Demo final del sistema completo.
+  \item Retrospectiva del proyecto.
+  \item Cierre oficial.
+\end{enumerate}
+
+\subsubsection*{Discusión}
+
+\jota{Las pruebas integrales pasaron en su mayoría. Probé todos los flujos críticos: registro de usuario, login, creación de proyecto, asignación de miembros, creación de tareas, movimiento en Kanban, comentarios con adjuntos y los dashboards. Solo encontré un problema: el endpoint de carga de archivos falla cuando se sube un archivo mayor a 5 MB con un mensaje de error poco informativo.}
+
+\esme{Lo vi también. Mejoré el mensaje de error del frontend para que diga explícitamente el límite de tamaño. ¿El backend ya tiene la validación?}
+
+\jota{Sí, multer rechaza el archivo, pero el error llega como un 500 genérico. Cambia a un 413 con un mensaje claro. Lo corrijo ahora mismo antes de que cerremos el sprint.}
+
+\esme{Sobre la accesibilidad: revisé los dashboards con las herramientas de accesibilidad del navegador. Los colores de las gráficas pasan el contraste WCAG AA. También agregué \texttt{aria-label} a los elementos interactivos del tablero Kanban y las gráficas.}
+
+\jota{Excelente. El despliegue también fue exitoso. Levanté todo con \texttt{docker-compose up} en una máquina limpia y funcionó a la primera, que era nuestra prueba de fuego. El volumen de PostgreSQL persiste los datos correctamente entre reinicios.}
+
+\esme{Eso es una gran victoria. Que funcione en máquina limpia significa que el sistema está bien encapsulado.}
+
+\jota{Exactamente. Ahora la retrospectiva. ¿Qué fue lo que funcionó mejor del proyecto?}
+
+\esme{Creo que la división del trabajo fue muy clara desde el inicio: yo frontend y tú backend, pero con revisiones cruzadas constantes. Eso evitó que nos piéramos en el detalle del otro y al mismo tiempo mantuvimos coherencia.}
+
+\jota{Totalmente. También funcionó bien el haber definido la arquitectura y el modelo de datos antes de empezar a codear. Me ahorró mucho tiempo de refactoring. ¿Qué mejorarías?}
+
+\esme{Creo que podríamos haber implementado pruebas unitarias desde el principio, no al final. Tuvimos que escribirlas a posteriori y algunas partes de la lógica no estaban bien desacopladas para testear fácilmente.}
+
+\jota{Muy de acuerdo. Para el próximo proyecto: TDD o al menos pruebas en paralelo al desarrollo. También creo que podríamos haber usado ramas de feature en Git más consistentemente, a veces commiteamos directo a \texttt{develop}.}
+
+\esme{Sí, la disciplina de Git es algo que tenemos que mejorar. Pero en general estoy muy satisfecha con el resultado. El sistema es funcional, tiene buena UX y está bien estructurado.}
+
+\jota{Completamente de acuerdo. TaskFlow está listo para entregarse.}
+
+\begin{acuerdobox}
+\textbf{Acuerdos finales:}
+\begin{itemize}[leftmargin=1.2em, topsep=2pt]
+  \item Jota corrige el código de error del endpoint de carga de archivos (500 → 413 con mensaje claro).
+  \item Sistema desplegado y verificado en entorno limpio con Docker.
+  \item Verificación de accesibilidad WCAG AA completada en todos los dashboards.
+  \item \textbf{Proyecto TaskFlow cerrado exitosamente el 7 de junio de 2026.}
+\end{itemize}
+\end{acuerdobox}
+
+\vspace{1em}
+\begin{mdframed}[
+  backgroundcolor=lightblue,
+  linecolor=primary,
+  linewidth=1.5pt,
+  innerleftmargin=14pt, innerrightmargin=14pt,
+  innertopmargin=12pt, innerbottommargin=12pt
+]
+\subsection*{Retrospectiva del Proyecto}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+  \toprule
+  \textbf{Categoría} & \textbf{Observación} \\
+  \midrule
+  \textbf{Logros}     & División clara frontend/backend, arquitectura definida antes del desarrollo, Docker funcional en máquina limpia, dashboards accesibles. \\[6pt]
+  \textbf{Mejoras}    & Adoptar TDD o pruebas en paralelo al desarrollo; mayor disciplina en ramas de Git (\textit{feature branches}). \\[6pt]
+  \textbf{Próximos pasos} & Documentar lecciones aprendidas en el README; aplicar prácticas de Git flow en futuros proyectos. \\
+  \bottomrule
+\end{tabularx}
+\end{mdframed}
+
+% ═══════════════════════════════════════════════════════════════════════════════
+%  RESUMEN EJECUTIVO
+% ═══════════════════════════════════════════════════════════════════════════════
+\newpage
+\section{Resumen Ejecutivo del Proyecto}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{|l|X|}
+\hline
+\rowcolor{lightblue}
+\textbf{Sprint} & \textbf{Entregables principales} \\
+\hline
+Gestión S1 (3/2--3/15)   & Requisitos funcionales/no funcionales, Diccionario EDT \\
+\hline
+Gestión S2 (16/3--22/3)  & Diagrama de Gantt \\
+\hline
+Gestión S3 (23/3--29/3)  & Registro de riesgos \\
+\hline
+Gestión S4 (30/3--5/4)   & Entregables de planificación y control \\
+\hline
+\rowcolor{lightgreen}
+Diseño S1 (4/15--4/21)   & Wireframes en Miro, Prototipos en Figma \\
+\hline
+\rowcolor{lightgreen}
+Diseño S2 (4/22--4/28)   & Arquitectura del sistema, entorno Docker, inicialización del proyecto \\
+\hline
+\rowcolor{lightgreen}
+Diseño S3 (4/29--5/5)    & Modelo Entidad-Relación \\
+\hline
+\rowcolor{lightorange}
+Desarrollo S1 (5/11--5/17) & Autenticación JWT, gestión de usuarios (CRUD) \\
+\hline
+\rowcolor{lightorange}
+Desarrollo S2 (5/18--5/24) & Proyectos, tareas, Kanban, fases, responsables, tiempo \\
+\hline
+\rowcolor{lightorange}
+Desarrollo S3 (5/25--5/31) & Comentarios con adjuntos, dashboards de carga y avance \\
+\hline
+\rowcolor{lightorange}
+Desarrollo S4 (6/1--6/7)   & Pruebas integrales, despliegue, accesibilidad, cierre \\
+\hline
+\end{tabularx}
+\caption{Resumen de sprints y entregables del proyecto TaskFlow}
+\end{table}
+
+\vspace{0.5em}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{|l|X|X|}
+\hline
+\rowcolor{lightblue}
+\textbf{Integrante} & \textbf{Rol principal} & \textbf{Responsabilidades clave} \\
+\hline
+Jota López & Backend / Arquitectura &
+  API REST (Express), JWT, Prisma, Docker Compose, endpoints de lógica de negocio, dashboards backend \\
+\hline
+Esmeralda Rivas G. & Frontend / Diseño &
+  React + Vite + Tailwind, wireframes, prototipos Figma, UI completa, AuthContext, componentes Kanban y dashboards \\
+\hline
+\end{tabularx}
+\caption{Distribución de responsabilidades}
+\end{table}
+
+\end{document}
