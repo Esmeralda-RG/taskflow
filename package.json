@@ -1,6 +1,9 @@
 {
   "devDependencies": {
-    "@types/node": "^25.7.0"
+    "@mermaid-js/mermaid-cli": "^11.15.0",
+    "@types/node": "^25.7.0",
+    "prisma-erd-generator": "^2.4.3",
+    "puppeteer": "^24.43.1"
   },
   "dependencies": {
     "lucide-react": "^1.16.0"
