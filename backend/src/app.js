@@ -13,9 +13,8 @@ import testRoutes from './routes/test.routes.js';
 
 dotenv.config();
 
-const app = express();
+export const app = express();
 app.disable('x-powered-by'); 
-const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.resolve(__dirname, '../uploads');
@@ -46,6 +45,4 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor TaskFlow corriendo en http://localhost:${PORT}`);
-});
+export default app;

@@ -11,7 +11,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.resolve(__dirname, '../../uploads/comments');
 
-fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+} catch {
+    // El directorio puede ser inaccesible en entornos de prueba
+}
 
 const allowedExtensions = new Set([
     '.pdf',
@@ -26,7 +30,7 @@ const allowedExtensions = new Set([
 ]);
 
 const storage = multer.diskStorage({
-    destination: uploadsDir,
+    destination: (_req, _file, cb) => cb(null, uploadsDir),
     filename: (_req, file, cb) => {
         const extension = path.extname(file.originalname).toLowerCase();
         const safeName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${extension}`;

@@ -394,6 +394,63 @@ export const addCustomPhase = async (req, res) => {
     }
 };
 
+export const updatePhase = async (req, res) => {
+    try {
+        const { projectId, phaseId } = req.params;
+        const phaseName = req.body.name?.trim();
+
+        if (!phaseName) {
+            return res.status(400).json({ success: false, message: 'El nombre de la fase es requerido' });
+        }
+
+        const existing = await prisma.phase.findFirst({
+            where: {
+                projectId,
+                name: { equals: phaseName, mode: 'insensitive' },
+                NOT: { id: phaseId }
+            }
+        });
+
+        if (existing) {
+            return res.status(409).json({ success: false, message: 'Ya existe una fase con ese nombre en este proyecto' });
+        }
+
+        const phase = await prisma.phase.update({
+            where: { id: phaseId },
+            data: { name: phaseName }
+        });
+
+        res.json({ success: true, message: 'Fase actualizada', phase });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al actualizar la fase' });
+    }
+};
+
+export const deletePhase = async (req, res) => {
+    try {
+        const { projectId, phaseId } = req.params;
+
+        const phase = await prisma.phase.findUnique({
+            where: { id: phaseId },
+            include: { tasks: { select: { id: true } } }
+        });
+
+        if (!phase || phase.projectId !== projectId) {
+            return res.status(404).json({ success: false, message: 'Fase no encontrada' });
+        }
+
+        const tasksDeleted = phase.tasks.length;
+
+        await prisma.phase.delete({ where: { id: phaseId } });
+
+        res.json({ success: true, message: 'Fase eliminada', tasksDeleted });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al eliminar la fase' });
+    }
+};
+
 export const getProjectWorkload = async (req, res) => {
     try {
         const { id } = req.params;

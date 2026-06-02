@@ -4,3 +4,6 @@ node_modules
 
 /generated/prisma
 backend/uploads
+
+backend/coverage
+frontend/coverage

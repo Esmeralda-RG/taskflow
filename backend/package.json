@@ -1,11 +1,15 @@
 {
   "name": "taskflow-backend",
   "version": "1.0.0",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/app.js",
-    "start": "node src/app.js",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
@@ -23,8 +27,12 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@vitest/coverage-v8": "^3.2.6",
+    "@vitest/ui": "^3.2.6",
     "nodemon": "^3.1.4",
     "prisma": "^5.15.0",
-    "tsx": "^4.19.1"
+    "supertest": "^7.2.2",
+    "tsx": "^4.19.1",
+    "vitest": "^3.2.6"
   }
 }
