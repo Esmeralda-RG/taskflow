@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 
 export const CustomDropdown = ({ value, onChange, options, placeholder = "Seleccionar...", className = "" }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [openUpward, setOpenUpward] = useState(false);
     const dropdownRef = useRef(null);
 
     useEffect(() => {
@@ -14,18 +15,27 @@ export const CustomDropdown = ({ value, onChange, options, placeholder = "Selecc
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const handleToggle = () => {
+        if (!isOpen && dropdownRef.current) {
+            const rect = dropdownRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            setOpenUpward(spaceBelow < 260);
+        }
+        setIsOpen(!isOpen);
+    };
+
     const selectedOption = options.find(opt => opt.value === value);
 
     return (
         <div ref={dropdownRef} className={`relative inline-block text-left w-full ${className}`}>
             <button
                 type="button"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={handleToggle}
                 className="w-full h-11 px-4 inline-flex items-center justify-between rounded-xl bg-gray-50 border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5B5CF0] transition-all"
             >
                 <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
                 <svg
-                    className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 text-gray-500 transition-transform duration-200 shrink-0 ml-2 ${isOpen ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -35,7 +45,11 @@ export const CustomDropdown = ({ value, onChange, options, placeholder = "Selecc
             </button>
 
             {isOpen && (
-                <div className="absolute left-0 mt-1 w-full bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-100">
+                <div
+                    className={`absolute left-0 w-full bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-[200] max-h-56 overflow-y-auto ${
+                        openUpward ? 'bottom-full mb-1' : 'top-full mt-1'
+                    }`}
+                >
                     {options.map((option) => (
                         <button
                             key={option.value}

@@ -17,7 +17,7 @@ function TaskActivityPanel({
     getInteractionMeta
 }) {
     return (
-        <aside className="flex flex-col bg-gray-50 lg:max-h-[calc(100vh-12rem)] min-h-[600px] rounded-r-3xl border-l border-gray-200">
+        <aside className="flex flex-col bg-gray-50 rounded-b-3xl lg:rounded-b-none lg:rounded-r-3xl border-t border-gray-200 lg:border-t-0 lg:border-l">
             <div className="border-b border-gray-200 p-5 flex-shrink-0">
                 <h3 className="text-lg font-semibold text-gray-900">
                     Actividad
@@ -28,7 +28,7 @@ function TaskActivityPanel({
                 </p>
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto p-5 min-h-0">
+            <div className="space-y-3 p-5 max-h-80 overflow-y-auto lg:max-h-96">
                 {commentsLoading && (
                     <div className="text-center py-6 text-gray-400 text-sm">
                         Cargando comentarios...

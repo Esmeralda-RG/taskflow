@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import TaskActivityPanel from './TaskActivityPanel';
+import { CustomDropdown } from './CustomDropdown.jsx';
+import ConfirmModal from './ui/ConfirmModal.jsx';
 import {
     Send,
     Paperclip,
@@ -71,6 +73,8 @@ function TaskForm({
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [formError, setFormError] = useState('');
     const [timeLogData, setTimeLogData] = useState({
         hours: '',
         description: ''
@@ -195,10 +199,11 @@ function TaskForm({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setFormError('');
 
         if (formData.startDate && formData.endDate) {
             if (new Date(formData.endDate) < new Date(formData.startDate)) {
-                alert('La fecha límite no puede ser menor a la fecha de inicio');
+                setFormError('La fecha límite no puede ser menor a la fecha de inicio');
                 return;
             }
         }
@@ -240,20 +245,14 @@ function TaskForm({
             const data = await res.json();
 
             if (data.success) {
-                alert(
-                    taskToEdit
-                        ? 'Tarea actualizada exitosamente'
-                        : 'Tarea creada exitosamente'
-                );
-
                 onTaskCreated?.();
                 onCancel?.();
             } else {
-                alert(data.message || 'Error al guardar la tarea');
+                setFormError(data.message || 'Error al guardar la tarea');
             }
         } catch (err) {
             console.error(err);
-            alert('Error de conexión');
+            setFormError('Error de conexión');
         } finally {
             setLoading(false);
         }
@@ -261,10 +260,6 @@ function TaskForm({
 
     const handleDelete = async () => {
         if (!taskToEdit) return;
-
-        if (!globalThis.confirm(`¿Eliminar la tarea "${taskToEdit.title}"?`)) {
-            return;
-        }
 
         try {
             setDeleting(true);
@@ -281,7 +276,7 @@ function TaskForm({
             const data = await res.json();
 
             if (!res.ok || !data.success) {
-                alert(data.message || data.error || 'Error al eliminar tarea');
+                setFormError(data.message || data.error || 'Error al eliminar tarea');
                 return;
             }
 
@@ -292,9 +287,10 @@ function TaskForm({
             }
         } catch (err) {
             console.error(err);
-            alert('Error de conexión');
+            setFormError('Error de conexión');
         } finally {
             setDeleting(false);
+            setShowDeleteConfirm(false);
         }
     };
 
@@ -511,10 +507,9 @@ function TaskForm({
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
-                        {/* NUEVO BOTÓN DE ELIMINAR CON ICONO LUCIDE */}
                         <button
                             type="button"
-                            onClick={handleDelete}
+                            onClick={() => setShowDeleteConfirm(true)}
                             disabled={deleting}
                             title="Eliminar tarea"
                             className="flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors disabled:opacity-50"
@@ -537,6 +532,11 @@ function TaskForm({
                 <div className="grid lg:grid-cols-[minmax(0,1fr)_360px]">
                     <section className="border-b border-gray-200 lg:border-b-0 lg:border-r">
                         <form onSubmit={handleSubmit} className="space-y-6 p-6">
+                            {formError && (
+                                <div className="px-4 py-3 rounded-xl bg-red-50 text-sm text-red-600 border border-red-100">
+                                    {formError}
+                                </div>
+                            )}
                             <div>
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-sm font-semibold text-gray-900">
@@ -590,22 +590,21 @@ function TaskForm({
                                     <div className="grid gap-3 sm:grid-cols-2">
                                         {/* RESPONSABLE */}
                                         <div className="rounded-2xl bg-gray-50 p-3 flex flex-col justify-center">
-                                            <label htmlFor="assigneeId" className="text-xs font-medium text-gray-400">
+                                            <p className="text-xs font-medium text-gray-400 mb-2">
                                                 Responsable
-                                            </label>
-                                            <select
-                                                id="assigneeId"
+                                            </p>
+                                            <CustomDropdown
                                                 value={formData.assigneeId}
-                                                onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })}
-                                                className="mt-1 w-full bg-transparent text-sm font-semibold text-gray-800 focus:outline-none cursor-pointer"
-                                            >
-                                                <option value="">Sin asignar</option>
-                                                {users.map((u) => (
-                                                    <option key={u.id} value={u.id}>
-                                                        {u.name || u.email}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                                onChange={(val) => setFormData({ ...formData, assigneeId: val })}
+                                                placeholder="Sin asignar"
+                                                options={[
+                                                    { value: '', label: 'Sin asignar' },
+                                                    ...users.map((u) => ({
+                                                        value: u.id,
+                                                        label: u.name || u.email
+                                                    }))
+                                                ]}
+                                            />
                                         </div>
 
                                         {/* HORAS ESTIMADAS */}
@@ -783,6 +782,17 @@ function TaskForm({
                         getInteractionMeta={getInteractionMeta}
                     />
                 </div>
+
+                <ConfirmModal
+                    isOpen={showDeleteConfirm}
+                    title="Eliminar tarea"
+                    message={`¿Deseas eliminar la tarea "${taskToEdit.title}"?`}
+                    confirmText={deleting ? 'Eliminando...' : 'Eliminar'}
+                    cancelText="Cancelar"
+                    danger
+                    onConfirm={handleDelete}
+                    onCancel={() => setShowDeleteConfirm(false)}
+                />
             </div>
         );
     }
@@ -800,6 +810,11 @@ function TaskForm({
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+                {formError && (
+                    <div className="px-4 py-3 rounded-xl bg-red-50 text-sm text-red-600 border border-red-100">
+                        {formError}
+                    </div>
+                )}
                 <div>
                     <label
                         htmlFor="title"
@@ -922,35 +937,20 @@ function TaskForm({
                             Responsable
                         </label>
 
-                        <select
-                            id="assigneeId"
+                        <CustomDropdown
                             value={formData.assigneeId}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    assigneeId: e.target.value
-                                })
-                            }
-                            className="w-full h-11 px-4 rounded-xl bg-gray-100 border border-transparent focus:outline-none focus:ring-2 focus:ring-[#5B5CF0]"
-                        >
-                            <option value="">
-                                Sin asignar
-                            </option>
-
-                            {users
-                                .filter((user) => user.role === 'EXECUTOR')
-                                .map((user) => (
-                                    <option
-                                        key={user.id}
-                                        value={user.id}
-                                    >
-                                        {user.name || user.email}
-                                        {user.role
-                                            ? ` (${user.role})`
-                                            : ''}
-                                    </option>
-                                ))}
-                        </select>
+                            onChange={(val) => setFormData({ ...formData, assigneeId: val })}
+                            placeholder="Sin asignar"
+                            options={[
+                                { value: '', label: 'Sin asignar' },
+                                ...users
+                                    .filter((u) => u.role === 'EXECUTOR')
+                                    .map((u) => ({
+                                        value: u.id,
+                                        label: u.name || u.email
+                                    }))
+                            ]}
+                        />
                     </div>
                 </div>
 

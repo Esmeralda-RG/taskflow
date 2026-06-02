@@ -402,16 +402,9 @@ function UserManagement() {
 
         {tableMessage && (
           <div
-            className={`
-      fixed top-20 right-5 z-50
-      px-4 py-3 rounded-xl
-      shadow-lg
-      text-sm font-medium
-      ${tableMessage.includes('Error')
-                ? 'bg-red-500 text-white'
-                : 'bg-blue-500 text-white'
-              }
-    `}
+            className={`fixed top-20 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium ${
+              tableMessage.includes('Error') ? 'bg-red-500 text-white' : 'bg-[#5B5CF0] text-white'
+            }`}
           >
             {tableMessage}
           </div>

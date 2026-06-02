@@ -3,6 +3,18 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import TaskForm from './TaskForm.jsx';
 import { CustomDropdown } from './CustomDropdown.jsx';
 import ProjectSummaryDashboard from './ProjectSummaryDashboard.jsx';
+import { Clock, Calendar, Pencil, Trash2, Save, X } from 'lucide-react';
+import ConfirmModal from './ui/ConfirmModal.jsx';
+
+const DEFAULT_PHASE_NAMES = new Set(['Por hacer', 'En proceso', 'Finalizado']);
+
+function getInitials(name = '') {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+        return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return (parts[0] || '?').slice(0, 2).toUpperCase();
+}
 
 function KanbanBoard() {
     const { token, user } = useAuth();
@@ -23,6 +35,17 @@ function KanbanBoard() {
     const [dragOverPhaseId, setDragOverPhaseId] = useState(null);
     const [showSummary, setShowSummary] = useState(false);
     const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
+    const [editingPhaseId, setEditingPhaseId] = useState(null);
+    const [editingPhaseName, setEditingPhaseName] = useState('');
+    const [savingPhaseEdit, setSavingPhaseEdit] = useState(false);
+    const [phaseToDelete, setPhaseToDelete] = useState(null);
+    const [deletingPhase, setDeletingPhase] = useState(false);
+
+    useEffect(() => {
+        if (!phaseMessage && !phaseError) return;
+        const t = setTimeout(() => { setPhaseMessage(''); setPhaseError(''); }, 3000);
+        return () => clearTimeout(t);
+    }, [phaseMessage, phaseError]);
 
     const canAddPhase = ['ADMIN', 'LEADER'].includes(user?.role);
     const phases = [...(selectedProject?.phases || [])].sort(
@@ -185,6 +208,80 @@ function KanbanBoard() {
             setSavingPhase(false);
         }
     };
+    const handlePhaseUpdate = async () => {
+        if (!editingPhaseId || !editingPhaseName.trim() || !selectedProject) return;
+
+        try {
+            setSavingPhaseEdit(true);
+            const res = await fetch(
+                `http://localhost:3000/api/projects/${selectedProject.id}/phases/${editingPhaseId}`,
+                {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ name: editingPhaseName.trim() })
+                }
+            );
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                setPhaseError(data.message || 'No se pudo renombrar la fase');
+                return;
+            }
+
+            const updatedProject = {
+                ...selectedProject,
+                phases: selectedProject.phases.map((p) =>
+                    p.id === editingPhaseId ? { ...p, name: data.phase.name } : p
+                )
+            };
+            setSelectedProject(updatedProject);
+            setProjects((prev) => prev.map((p) => p.id === updatedProject.id ? updatedProject : p));
+            setPhaseMessage(data.message);
+        } catch {
+            setPhaseError('Error de conexión');
+        } finally {
+            setSavingPhaseEdit(false);
+            setEditingPhaseId(null);
+            setEditingPhaseName('');
+        }
+    };
+
+    const handlePhaseDelete = async () => {
+        if (!phaseToDelete || !selectedProject) return;
+
+        try {
+            setDeletingPhase(true);
+            const res = await fetch(
+                `http://localhost:3000/api/projects/${selectedProject.id}/phases/${phaseToDelete.id}`,
+                {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            );
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                setPhaseError(data.message || 'No se pudo eliminar la fase');
+                return;
+            }
+
+            const updatedProject = {
+                ...selectedProject,
+                phases: selectedProject.phases.filter((p) => p.id !== phaseToDelete.id)
+            };
+            setSelectedProject(updatedProject);
+            setProjects((prev) => prev.map((p) => p.id === updatedProject.id ? updatedProject : p));
+            setTasks((prev) => prev.filter((t) => t.phase?.id !== phaseToDelete.id));
+            setPhaseMessage(data.message);
+            setSummaryRefreshKey((k) => k + 1);
+        } catch {
+            setPhaseError('Error de conexión');
+        } finally {
+            setDeletingPhase(false);
+            setPhaseToDelete(null);
+        }
+    };
+
     const moveTask = async (taskId, newPhaseId) => {
         const phase = phases.find((p) => p.id === newPhaseId);
         const task = tasks.find((currentTask) => currentTask.id === taskId);
@@ -339,10 +436,7 @@ function KanbanBoard() {
             </div>
 
             {(phaseMessage || phaseError) && (
-                <div
-                    className={`mb-6 text-sm ${phaseError ? 'text-red-500' : 'text-green-600'
-                        }`}
-                >
+                <div className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium ${phaseError ? 'bg-red-500 text-white' : 'bg-[#5B5CF0] text-white'}`}>
                     {phaseError || phaseMessage}
                 </div>
             )}
@@ -382,14 +476,77 @@ function KanbanBoard() {
                                 }`}
                         >
 
-                            <div className="flex items-center justify-between gap-3 mb-5 pb-4 border-b border-gray-200">
-                                <h3 className="font-semibold text-gray-900 truncate">
-                                    {phase.name}
-                                </h3>
+                            <div className="flex items-center gap-2 mb-5 pb-4 border-b border-gray-200">
+                                {/* Nombre o input de edición */}
+                                {editingPhaseId === phase.id ? (
+                                    <input
+                                        value={editingPhaseName}
+                                        onChange={(e) => setEditingPhaseName(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') handlePhaseUpdate();
+                                            if (e.key === 'Escape') setEditingPhaseId(null);
+                                        }}
+                                        autoFocus
+                                        className="flex-1 min-w-0 h-7 px-2 rounded-lg border border-[#5B5CF0] text-sm font-semibold text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#5B5CF0] bg-white"
+                                    />
+                                ) : (
+                                    <h3 className="font-semibold text-gray-900 truncate flex-1 min-w-0">
+                                        {phase.name}
+                                    </h3>
+                                )}
 
-                                <span className="shrink-0 min-w-8 h-8 px-3 inline-flex items-center justify-center rounded-full bg-[#eef0ff] text-xs font-semibold text-[#5B5CF0]">
-                                    {phaseTasks.length}
-                                </span>
+                                {/* Controles */}
+                                <div className="flex items-center gap-1 shrink-0">
+                                    <span className="min-w-7 h-7 px-2 inline-flex items-center justify-center rounded-full bg-[#eef0ff] text-xs font-semibold text-[#5B5CF0]">
+                                        {phaseTasks.length}
+                                    </span>
+
+                                    {canAddPhase && !DEFAULT_PHASE_NAMES.has(phase.name) && (
+                                        editingPhaseId === phase.id ? (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    onClick={handlePhaseUpdate}
+                                                    disabled={savingPhaseEdit}
+                                                    title="Guardar nombre"
+                                                    className="w-7 h-7 flex items-center justify-center rounded-lg text-green-600 hover:bg-green-50 transition disabled:opacity-50"
+                                                >
+                                                    <Save size={13} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setEditingPhaseId(null)}
+                                                    title="Cancelar"
+                                                    className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 transition"
+                                                >
+                                                    <X size={13} />
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setEditingPhaseId(phase.id);
+                                                        setEditingPhaseName(phase.name);
+                                                    }}
+                                                    title="Editar nombre"
+                                                    className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#5B5CF0] hover:bg-[#eef0ff] transition"
+                                                >
+                                                    <Pencil size={13} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPhaseToDelete(phase)}
+                                                    title="Eliminar fase"
+                                                    className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition"
+                                                >
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </>
+                                        )
+                                    )}
+                                </div>
                             </div>
 
                             <div className="space-y-4">
@@ -417,11 +574,12 @@ function KanbanBoard() {
                                                 setDraggingTaskId(null);
                                                 setDragOverPhaseId(null);
                                             }}
-                                            className={`bg-gray-50 border border-gray-100 rounded-2xl p-4 cursor-grab active:cursor-grabbing transition ${draggingTaskId === task.id
-                                                ? 'opacity-60 ring-2 ring-[#5B5CF0]/30'
-                                                : 'hover:border-[#5B5CF0]/40'
+                                            className={`bg-white border rounded-2xl p-4 cursor-grab active:cursor-grabbing transition shadow-sm ${draggingTaskId === task.id
+                                                ? 'opacity-60 ring-2 ring-[#5B5CF0]/30 border-[#5B5CF0]/40'
+                                                : 'border-gray-100 hover:border-[#5B5CF0]/40 hover:shadow-md'
                                                 }`}
                                         >
+                                            {/* Título y descripción */}
                                             <button
                                                 type="button"
                                                 onClick={() => {
@@ -430,41 +588,63 @@ function KanbanBoard() {
                                                 }}
                                                 className="block w-full text-left"
                                             >
-                                                <h4 className="font-semibold text-gray-900">
+                                                <h4 className="font-semibold text-gray-900 leading-snug">
                                                     {task.title}
                                                 </h4>
 
                                                 {task.description && (
-                                                    <p className="text-gray-500 text-sm mt-2 line-clamp-2">
+                                                    <p className="text-gray-400 text-xs mt-1.5 line-clamp-2 leading-relaxed">
                                                         {task.description}
                                                     </p>
                                                 )}
                                             </button>
 
-                                            {task.assignee && (
-                                                <p className="text-xs text-[#5B5CF0] font-medium mt-3">
-                                                    Responsable: {task.assignee.name}
-                                                </p>
-                                            )}
-
-                                            {task.estimatedHours > 0 && (
-                                                <p className="text-xs text-gray-400 mt-1">
-                                                    Estimado: {task.estimatedHours} horas
-                                                </p>
-                                            )}
-
-                                            {task.endDate && (
-                                                <p className="text-xs text-gray-400 mt-1">
-                                                    Límite: {task.endDate.split('T')[0]}
-                                                </p>
-                                            )}
-
-                                            {isOverdue && (
-                                                <div className="mt-3 inline-block px-3 py-1 bg-red-100 text-red-600 text-xs font-medium rounded-full">
-                                                    Vencida
+                                            {/* Metadatos: fechas y horas */}
+                                            {(task.endDate || task.estimatedHours > 0) && (
+                                                <div className="flex items-center gap-3 mt-3">
+                                                    {task.estimatedHours > 0 && (
+                                                        <span className="inline-flex items-center gap-1 text-[11px] text-gray-400">
+                                                            <Clock size={11} />
+                                                            {task.estimatedHours}h
+                                                        </span>
+                                                    )}
+                                                    {task.endDate && (
+                                                        <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${isOverdue ? 'text-red-500' : 'text-gray-400'}`}>
+                                                            <Calendar size={11} />
+                                                            {task.endDate.split('T')[0]}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             )}
 
+                                            {/* Separador */}
+                                            <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                                                {/* Avatar del responsable */}
+                                                {task.assignee ? (
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <div
+                                                            className="w-6 h-6 rounded-full bg-[#5B5CF0] flex items-center justify-center text-white text-[9px] font-bold shrink-0 ring-2 ring-white shadow-sm"
+                                                            title={task.assignee.name}
+                                                        >
+                                                            {getInitials(task.assignee.name)}
+                                                        </div>
+                                                        <span className="text-xs text-gray-600 truncate">
+                                                            {task.assignee.name}
+                                                        </span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-gray-300 italic">
+                                                        Sin asignar
+                                                    </span>
+                                                )}
+
+                                                {/* Badge de vencida */}
+                                                {isOverdue && (
+                                                    <span className="shrink-0 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-semibold rounded-full">
+                                                        Vencida
+                                                    </span>
+                                                )}
+                                            </div>
                                         </article>
                                     );
                                 }
@@ -477,6 +657,26 @@ function KanbanBoard() {
 
             </div>
 
+
+            {/* CONFIRM ELIMINAR FASE */}
+            <ConfirmModal
+                isOpen={!!phaseToDelete}
+                title="Eliminar fase"
+                message={
+                    phaseToDelete
+                        ? `¿Deseas eliminar la fase "${phaseToDelete.name}"? ${
+                              tasks.filter((t) => t.phase?.id === phaseToDelete.id).length > 0
+                                  ? `Las ${tasks.filter((t) => t.phase?.id === phaseToDelete.id).length} tarea(s) dentro también serán eliminadas.`
+                                  : 'No tiene tareas asignadas.'
+                          }`
+                        : ''
+                }
+                confirmText={deletingPhase ? 'Eliminando...' : 'Eliminar'}
+                cancelText="Cancelar"
+                danger
+                onConfirm={handlePhaseDelete}
+                onCancel={() => setPhaseToDelete(null)}
+            />
 
             {/* MODAL NUEVA FASE REFACTORIZADO */}
             {showPhaseForm && (
