@@ -67,6 +67,7 @@ export const getUsers = async (req, res) => {
         res.json({ success: true, users });
 
     } catch (error) {
+        console.error('Error al obtener usuarios:', error);
         res.status(500).json({ success: false, message: 'Error al obtener usuarios' });
     }
 };
@@ -93,6 +94,7 @@ export const updateUser = async (req, res) => {
 
         res.json({ success: true, message: 'Usuario actualizado exitosamente', user });
     } catch (error) {
+        console.error('Error al actualizar usuario:', error);
         res.status(500).json({ success: false, message: 'Error al actualizar usuario' });
     }
 };
@@ -111,6 +113,7 @@ export const deleteUser = async (req, res) => {
         await prisma.user.delete({ where: { id } });
         res.json({ success: true, message: 'Usuario eliminado exitosamente' });
     } catch (error) {
+        console.error('Error al eliminar usuario:', error);
         res.status(500).json({ success: false, message: 'Error al eliminar usuario' });
     }
 };

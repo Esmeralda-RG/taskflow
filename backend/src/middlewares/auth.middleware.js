@@ -4,7 +4,7 @@ export const authenticate = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
 
-        if(!authHeader || !authHeader.startsWith('Bearer ')) {
+        if(!authHeader?.startsWith('Bearer ')) {
             return res.status(401).json({
                 success: false,
                 message: "Token not provided"
@@ -17,6 +17,7 @@ export const authenticate = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
+        console.error('Error during authentication:', error);
         return res.status(401).json({
             success: false,
             message: "Invalid or expired token"
