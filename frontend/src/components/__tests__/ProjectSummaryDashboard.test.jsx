@@ -96,6 +96,32 @@ describe('ProjectSummaryDashboard', () => {
         });
     });
 
+    it('muestra error de conexión cuando el fetch lanza una excepción', async () => {
+        fetch.mockRejectedValue(new Error('Network error'));
+
+        render(<ProjectSummaryDashboard project={mockProject} refreshKey={0} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Error de conexión al cargar el resumen')).toBeInTheDocument();
+        });
+    });
+
+    it('muestra mensaje cuando no hay tareas por fase', async () => {
+        fetch.mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve({
+                success: true,
+                summary: { ...summaryData.summary, tasksByPhase: [] }
+            })
+        });
+
+        render(<ProjectSummaryDashboard project={mockProject} refreshKey={0} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Sin tareas registradas')).toBeInTheDocument();
+        });
+    });
+
     it('vuelve a hacer fetch cuando refreshKey cambia', async () => {
         fetch.mockResolvedValue({
             ok: true,

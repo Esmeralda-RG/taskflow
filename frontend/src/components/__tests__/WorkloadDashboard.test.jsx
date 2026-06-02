@@ -2,8 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import WorkloadDashboard from '../WorkloadDashboard.jsx';
 
+const mockUseAuth = vi.hoisted(() => vi.fn(() => ({ token: 'tok', user: { role: 'ADMIN', id: 'u1' } })));
+
 vi.mock('../../contexts/AuthContext.jsx', () => ({
-    useAuth: () => ({ token: 'tok', user: { role: 'ADMIN', id: 'u1' } })
+    useAuth: mockUseAuth
 }));
 
 const mockProject = { id: 'p1', name: 'Proyecto Alpha' };
@@ -23,6 +25,7 @@ const workloadData = {
 describe('WorkloadDashboard', () => {
     beforeEach(() => {
         vi.stubGlobal('fetch', vi.fn());
+        mockUseAuth.mockReturnValue({ token: 'tok', user: { role: 'ADMIN', id: 'u1' } });
     });
 
     afterEach(() => {
@@ -44,6 +47,42 @@ describe('WorkloadDashboard', () => {
 
         await waitFor(() => {
             expect(screen.getByText('Error de conexión')).toBeInTheDocument();
+        });
+    });
+
+    it('muestra error de permisos cuando el usuario no es ADMIN ni LEADER', async () => {
+        mockUseAuth.mockReturnValue({ token: 'tok', user: { role: 'EXECUTOR', id: 'u2' } });
+
+        render(<WorkloadDashboard project={mockProject} onClose={vi.fn()} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('No tienes permisos para ver la carga laboral')).toBeInTheDocument();
+        });
+    });
+
+    it('muestra error del servidor cuando success es false', async () => {
+        fetch.mockResolvedValue({
+            ok: false,
+            json: () => Promise.resolve({ success: false, message: 'Error interno del servidor' })
+        });
+
+        render(<WorkloadDashboard project={mockProject} onClose={vi.fn()} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Error interno del servidor')).toBeInTheDocument();
+        });
+    });
+
+    it('muestra mensaje cuando no hay usuarios con tareas asignadas', async () => {
+        fetch.mockResolvedValue({
+            ok: true,
+            json: () => Promise.resolve({ success: true, workload: [] })
+        });
+
+        render(<WorkloadDashboard project={mockProject} onClose={vi.fn()} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('No hay usuarios con tareas asignadas')).toBeInTheDocument();
         });
     });
 
